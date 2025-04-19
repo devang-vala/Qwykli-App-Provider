@@ -1,0 +1,54 @@
+{
+    "name" : "Name",
+    "contact" : "Contact",
+    "address" : "Address",
+    "aadhar" : "Aadhar Details",
+    "select_service" : "Select Services",
+    "selectlocations" : "Select Location(s)",
+    "continuetoproceed": "Continue to proceed",
+    "haveanaccount" : "Have an Account ?",
+    "login" : "Login",
+    "chooselocations" : "Choose Locations",
+    "searchlocation" : "Search Location",
+
+
+
+    "emailorphone"  :"Email or Phone",
+    "otp" : "Enter Otp",
+    "forgotpassword" : "Forgot Password",
+    "donthaveanaccount" : "Don't have an account ?",
+    "signup" : "Signup" ,
+
+
+
+    "openorder" : "Open Order",
+    "acceptorder" : "Accept Order",
+    "senddetails" : "Send Details",
+    "call" : "Call",
+    "home"  : "Home",
+    "history" : "History",
+    "profile" : "Profile",
+    "providerdetails" : "Provider Details",
+    "orderdetails" : "Order Details",
+    "verify" : "Verify" , 
+    "userdetails" : "User Details",
+    "providerdetails" : "Provider Details",
+    "afterorder" : "After Order",
+    "makereceipt" : "Make Receipt",
+    "closeorder" : "Close Order",
+
+
+
+    "pricesheet" : "Price Sheet",
+    "workingarea" : "Working Area",
+    "workerlist" : "Worker List" ,
+    "totalorderclosed"  :"Total Order Closed",
+    "totalearnings" : "Total Earnings",
+    "pendingorders" : "Pending Orders",
+    "editprofile" : "Edit Profile",
+    "refer" : "Refer",
+    "gethelp" : "Get Help",
+    "logout" : "Log Out"
+
+
+}

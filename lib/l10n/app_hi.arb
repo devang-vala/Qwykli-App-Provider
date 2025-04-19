@@ -1,0 +1,56 @@
+{
+    "name" : "नाम",
+    "contact" : "संपर्क",
+    "address" : "पता",
+    "aadhar" : "आधार विवरण",
+    "select_service" : "सेवाएँ चुनें",
+    "selectlocations" : "स्थान चुनें",
+    "continuetoproceed" :"आगे बढ़ना जारी रखें",
+    "haveanaccount" : "एक खाता है ?",
+    "login" : "लॉग इन करें",
+    "chooselocations" : "स्थान चुनें",
+    "searchlocation" : "स्थान खोजें",
+
+
+
+
+
+    "emailorphone"  :"ईमेल या फ़ोन",
+    "otp" : "ओ.टी.पी",
+    "forgotpassword" : "पासवर्ड भूल गए",
+    "donthaveanaccount" : "आपके पास खाता नहीं है?",
+    "signup" : "साइन अप करें" , 
+
+
+
+
+    "openorder" : "ऑर्डर खोलें",
+    "acceptorder" : "आदेश स्वीकार करें",
+    "senddetails" : "विवरण भेजें",
+    "call" : "पुकारना",
+    "home"  : "घर",
+    "history" : "इतिहास",
+    "profile" : "प्रोफ़ाइल",
+    "providerdetails" : "प्रदाता विवरण",
+    "orderdetails" : "ऑर्डर का विवरण",
+    "verify" : "सत्यापित करें" , 
+    "userdetails" : "उपयोगकर्ता विवरण",
+    "providerdetails" : "प्रदाता विवरण",
+    "afterorder" : "ऑर्डर के बाद",
+    "makereceipt" : "रसीद बनाओ",
+    "closeorder" : "ऑर्डर बंद करें",
+
+
+
+    "pricesheet" : "मूल्य पत्रक",
+    "workingarea" : "कार्य क्षेत्र",
+    "workerlist" : "कार्यकर्ता सूची" ,
+    "totalorderclosed"  :"कुल ऑर्डर बंद",
+    "totalearnings" : "कुल कमाई",
+    "pendingorders" : "लंबित ऑर्डर",
+    "editprofile" : "प्रोफ़ाइल संपादित करें",
+    "refer" : "संदर्भ देना",
+    "gethelp" : "मदद लें",
+    "logout" : "लॉग आउट"
+
+}
