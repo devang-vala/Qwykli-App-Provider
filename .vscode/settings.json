@@ -1,5 +1,7 @@
 {
     "files.associations": {
         "vector": "cpp"
-    }
+    },
+    "cmake.sourceDirectory": "C:/ABHION_ABHI/projects/Shortly Internship/shortly-provider/linux",
+    "java.configuration.updateBuildConfiguration": "interactive"
 }

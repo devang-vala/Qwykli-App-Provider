@@ -11,7 +11,10 @@ import 'package:shortly_provider/language_provider.dart';
 import 'package:shortly_provider/route/custom_navigator.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'core/loaded_widget.dart';
+import 'package:geolocator/geolocator.dart';
 String lang = "";
+Position? currentPosition;
+String currentAddress = "Fetching location...";
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AppManager.initialize();

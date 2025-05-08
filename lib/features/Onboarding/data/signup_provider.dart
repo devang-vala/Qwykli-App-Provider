@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:image_picker/image_picker.dart';
 import 'package:shortly_provider/core/app_imports.dart';
+import 'package:shortly_provider/core/constants/app_data.dart';
 
 class SignupProvider extends ChangeNotifier {
   File? profileImage;
@@ -78,5 +79,37 @@ class SignupProvider extends ChangeNotifier {
     return allLocations
         .where((loc) => loc.toLowerCase().contains(searchQuery.toLowerCase()))
         .toList();
+  }
+ 
+
+  String? selectedCategory;
+
+
+
+  void selectCategory(String category) {
+    selectedCategory = category;
+    notifyListeners();
+  }
+  Set<String> selectedCategories = {};
+  Set<String> selectedServices = {};
+
+  void toggleCategory(String category) {
+    if (selectedCategories.contains(category)) {
+      selectedCategories.remove(category);
+      // remove its services
+      selectedServices.removeWhere((s) => AppData.categoryToServices[category]?.contains(s) ?? false);
+    } else {
+      selectedCategories.add(category);
+    }
+    notifyListeners();
+  }
+
+  void toggleService(String service) {
+    if (selectedServices.contains(service)) {
+      selectedServices.remove(service);
+    } else {
+      selectedServices.add(service);
+    }
+    notifyListeners();
   }
 }

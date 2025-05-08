@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:shortly_provider/core/app_imports.dart';
+import 'package:shortly_provider/core/utils/custom_spacers.dart';
 import 'package:shortly_provider/core/utils/screen_utils.dart';
 import 'package:shortly_provider/features/onboarding/widgets/my_text_field.dart';
 import 'package:shortly_provider/route/custom_navigator.dart';
@@ -24,7 +24,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   Future<void> pickImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
     if (pickedFile != null) {
       setState(() {
         _image = File(pickedFile.path);
@@ -37,80 +36,91 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final mobile = mobileController.text;
     final address = addressController.text;
 
-    // Handle the save logic (e.g., update Firestore, Firebase Auth, etc.)
     print('Saved Name: $name');
     print('Saved Mobile: $mobile');
     print('Saved Address: $address');
     print('Image path: ${_image?.path}');
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Profile updated successfully!')),
+    );
+
+    CustomNavigator.pop(context); // optional: go back to previous screen
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 0, 63, 164),
+        backgroundColor: Colors.black,
+        elevation: 0,
         automaticallyImplyLeading: false,
         centerTitle: false,
         leading: GestureDetector(
-            onTap: () {
-              CustomNavigator.pop(context);
-            },
-            child: Icon(
-              Icons.arrow_back,
-              color: Colors.white,
-            )),
-        title: Text(
+          onTap: () => CustomNavigator.pop(context),
+          child: const Icon(Icons.arrow_back, color: Colors.white),
+        ),
+        title: const Text(
           "Edit Profile",
           style: TextStyle(
-              fontSize: 22, color: Colors.white, fontWeight: FontWeight.bold),
+              fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Profile Image Picker
+            /// Profile Image Picker
             GestureDetector(
               onTap: pickImage,
               child: CircleAvatar(
-                radius: 50,
+                radius: 55,
+                backgroundColor: Colors.grey[200],
                 backgroundImage: _image != null ? FileImage(_image!) : null,
                 child: _image == null
-                    ? const Icon(Icons.camera_alt, size: 40)
+                    ? const Icon(Icons.camera_alt, size: 40, color: Colors.grey)
                     : null,
               ),
             ),
-            const SizedBox(height: 20),
 
-            // Name Field
+            CustomSpacers.height30,
+
+            /// Name Field
             MyTextfield(
               labelText: "Name",
               controller: nameController,
+              type: TextInputType.name,
             ),
-            CustomSpacers.height16,
+            CustomSpacers.height20,
 
-            // Mobile Field
+            /// Mobile Field
             MyTextfield(
               labelText: "Mobile Number",
-              controller: nameController,
+              controller: mobileController,
+              type: TextInputType.phone,
             ),
-            CustomSpacers.height16,
+            CustomSpacers.height20,
 
-            // Address Field
+            /// Address Field
             MyTextfield(
               labelText: "Address",
-              controller: nameController,
+              controller: addressController,
+              type: TextInputType.streetAddress,
             ),
-            CustomSpacers.height36,
 
-            // Save Button
+            CustomSpacers.height40,
+
+            /// Save Changes Button
             CustomButton(
-              dHeight: 50.h,
-              dWidth: 200.w,
-              bgColor: Colors.blue,
-              strButtonText: "Save Changes", buttonAction: (){
-
-            })
+              dHeight: 55.h,
+              dWidth: double.infinity,
+              bgColor: Colors.black,
+              dCornerRadius: 16,
+              strButtonText: "Save Changes",
+              buttonAction: saveChanges,
+            ),
           ],
         ),
       ),

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:shortly_provider/core/constants/app_colors.dart';
 import 'package:shortly_provider/core/utils/screen_utils.dart';
 import 'package:shortly_provider/features/Home/screens/home_screen.dart';
+import 'package:shortly_provider/features/Onboarding/screens/price_sheet.dart';
 import 'package:shortly_provider/features/Profile/screens/profile_screen.dart';
+import 'package:shortly_provider/features/Profile/screens/worker_list_screen.dart';
 import 'package:shortly_provider/features/Service%20History/screens/service_history_screen.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -17,7 +19,8 @@ class _NavBarScreenState extends State<NavBarScreen> {
 
   final List<Widget> _pages = [
     const HomeScreen(),
-    const ServiceHistoryScreen(),
+    PriceSelectionPage(),
+    WorkerListScreen(),
     const ProfileScreen(),
   ];
 
@@ -76,11 +79,15 @@ class _NavBarScreenState extends State<NavBarScreen> {
             items:  [
               BottomNavigationBarItem(
                 icon: Icon(Icons.home_outlined),
-                label: AppLocalizations.of(context)!.home,
+                label: "Shortly",
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.calendar_month_outlined),
-                label: AppLocalizations.of(context)!.history,
+                icon: Icon(Icons.price_change),
+                label: "Price Sheet",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.workspaces_rounded),
+                label: "Worker",
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.person_2_outlined),

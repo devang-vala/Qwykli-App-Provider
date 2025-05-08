@@ -1,72 +1,128 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shortly_provider/features/Onboarding/data/signup_provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class SelectServicesWidget extends StatelessWidget {
-  final Map<String, List<String>> services;
+class SelectServicesWidget extends StatefulWidget {
+  final Map<String, List<String>> categoryToServices;
 
-  const SelectServicesWidget({super.key, required this.services});
+  const SelectServicesWidget({super.key, required this.categoryToServices});
+
+  @override
+  State<SelectServicesWidget> createState() => _SelectServicesWidgetState();
+}
+
+class _SelectServicesWidgetState extends State<SelectServicesWidget> {
+  bool categoryDropdownExpanded = false;
+  bool serviceDropdownExpanded = false;
 
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<SignupProvider>(context);
 
-    return Column(
-      children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            AppLocalizations.of(context)!.select_service,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-        ),
-        const SizedBox(height: 10),
-        ...services.entries.map((entry) {
-          final service = entry.key;
-          final subServices = entry.value;
-          final isExpanded = provider.expandedServices.contains(service);
+    // All services under selected categories
+    final availableServices = provider.selectedCategories
+        .expand((cat) => widget.categoryToServices[cat] ?? [])
+        .toSet()
+        .toList();
 
-          return AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            margin: const EdgeInsets.symmetric(vertical: 8),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        /// --- CATEGORY SELECTION ---
+        const Text("Select Categories",
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+
+        GestureDetector(
+          onTap: () {
+            setState(() {
+              categoryDropdownExpanded = !categoryDropdownExpanded;
+            });
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(width: 0.2),
+              border: Border.all(color: Colors.grey.shade400),
+              borderRadius: BorderRadius.circular(10),
             ),
-            child: Column(
+            child: Row(
               children: [
-                ListTile(
-                  title: Text(service,
-                      style: const TextStyle(fontWeight: FontWeight.w400)),
-                  trailing: Icon(
-                      isExpanded ? Icons.expand_less : Icons.expand_more),
-                  onTap: () => provider.toggleExpansion(service),
-                ),
-                if (isExpanded)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      children: subServices.map((sub) {
-                        final selected = provider
-                                .selectedSubServices[service]
-                                ?.contains(sub) ??
-                            false;
-                        return CheckboxListTile(
-                          title: Text(sub),
-                          value: selected,
-                          onChanged: (_) =>
-                              provider.toggleSubService(service, sub),
-                        );
-                      }).toList(),
-                    ),
-                  ),
+                Expanded(
+                    child: Text(
+                  provider.selectedCategories.isEmpty
+                      ? "Select categories"
+                      : provider.selectedCategories.join(", "),
+                )),
+                Icon(categoryDropdownExpanded
+                    ? Icons.keyboard_arrow_up
+                    : Icons.keyboard_arrow_down),
               ],
             ),
-          );
-        }).toList(),
+          ),
+        ),
+
+        if (categoryDropdownExpanded)
+          Column(
+            children: widget.categoryToServices.keys.map((category) {
+              final isSelected =
+                  provider.selectedCategories.contains(category);
+              return CheckboxListTile(
+                title: Text(category),
+                value: isSelected,
+                onChanged: (_) => provider.toggleCategory(category),
+              );
+            }).toList(),
+          ),
+
+        const SizedBox(height: 24),
+
+        /// --- SERVICE SELECTION ---
+        const Text("Select Services",
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+
+        GestureDetector(
+          onTap: () {
+            setState(() {
+              serviceDropdownExpanded = !serviceDropdownExpanded;
+            });
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey.shade400),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                    child: Text(
+                  provider.selectedServices.isEmpty
+                      ? "Select services"
+                      : provider.selectedServices.join(", "),
+                )),
+                Icon(serviceDropdownExpanded
+                    ? Icons.keyboard_arrow_up
+                    : Icons.keyboard_arrow_down),
+              ],
+            ),
+          ),
+        ),
+
+        if (serviceDropdownExpanded)
+          Column(
+            children: availableServices.map((service) {
+              final selected = provider.selectedServices.contains(service);
+              return CheckboxListTile(
+                title: Text(service),
+                value: selected,
+                onChanged: (_) => provider.toggleService(service),
+              );
+            }).toList(),
+          ),
+
+        const SizedBox(height: 10),
       ],
-    );
+    ); 
   }
 }

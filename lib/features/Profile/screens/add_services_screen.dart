@@ -32,9 +32,12 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
               fontSize: 24, color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(18.0),
-        child: SelectServicesWidget(services: AppData.services),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(18.0),
+          child: SelectServicesWidget(categoryToServices: AppData.categoryToServices,),
+
+        ),
       ),
     );
   }

@@ -2,14 +2,14 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class SendDetailsDialogBox extends StatefulWidget {
-  const SendDetailsDialogBox({super.key});
+class SendConfirmDialogBox extends StatefulWidget {
+  const SendConfirmDialogBox({super.key});
 
   @override
-  State<SendDetailsDialogBox> createState() => _SendDetailsDialogBoxState();
+  State<SendConfirmDialogBox> createState() => _SendConfirmDialogBoxState();
 }
 
-class _SendDetailsDialogBoxState extends State<SendDetailsDialogBox> {
+class _SendConfirmDialogBoxState extends State<SendConfirmDialogBox> {
   final timeController = TextEditingController();
 
   List<Map<String, String>> providers = [
@@ -19,6 +19,13 @@ class _SendDetailsDialogBoxState extends State<SendDetailsDialogBox> {
   ];
 
   String? selectedProviderName;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    timeController.text = "3:00 PM - 4:00 PM";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,43 +52,45 @@ class _SendDetailsDialogBoxState extends State<SendDetailsDialogBox> {
                           color: Colors.grey[200],
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.arrow_back, color: Colors.black),
+                        child:
+                            const Icon(Icons.arrow_back, color: Colors.black),
                       ),
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      "Details",
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                      AppLocalizations.of(context)!.providerdetails,
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
                 const SizedBox(height: 24),
 
                 /// Dropdown to select provider
-                DropdownButtonFormField<String>(
-                  value: selectedProviderName,
-                  decoration: InputDecoration(
-                    labelText: "Select Provider",
-                    filled: true,
-                    fillColor: Colors.grey[200],
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                  ),
-                  items: providers.map((provider) {
-                    return DropdownMenuItem<String>(
-                      value: provider["name"],
-                      child: Text(provider["name"]!),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    if (value == "Add other") {
-                      _showAddProviderDialog();
-                    } else {
-                      setState(() {
-                        selectedProviderName = value;
-                      });
-                    }
-                  },
-                ),
+                // DropdownButtonFormField<String>(
+                //   value: selectedProviderName,
+                //   decoration: InputDecoration(
+                //     labelText: "Select Provider",
+                //     filled: true,
+                //     fillColor: Colors.grey[200],
+                //     border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                //   ),
+                //   items: providers.map((provider) {
+                //     return DropdownMenuItem<String>(
+                //       value: provider["name"],
+                //       child: Text(provider["name"]!),
+                //     );
+                //   }).toList(),
+                //   onChanged: (value) {
+                //     if (value == "Add other") {
+                //       _showAddProviderDialog();
+                //     } else {
+                //       setState(() {
+                //         selectedProviderName = value;
+                //       });
+                //     }
+                //   },
+                // ),
 
                 const SizedBox(height: 16),
 
@@ -100,11 +109,15 @@ class _SendDetailsDialogBoxState extends State<SendDetailsDialogBox> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF0A3D91),
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
                     ),
                     child: Text(
-                      AppLocalizations.of(context)!.senddetails,
-                      style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16, color: Colors.white),
+                      "Confirm",
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 16,
+                          color: Colors.white),
                     ),
                   ),
                 )
@@ -124,8 +137,10 @@ class _SendDetailsDialogBoxState extends State<SendDetailsDialogBox> {
       context: context,
       builder: (_) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Text("Add New Provider", style: TextStyle(fontWeight: FontWeight.bold)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Text("Add New Provider",
+              style: TextStyle(fontWeight: FontWeight.bold)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -135,7 +150,8 @@ class _SendDetailsDialogBoxState extends State<SendDetailsDialogBox> {
                   hintText: AppLocalizations.of(context)!.name,
                   filled: true,
                   fillColor: Colors.grey[200],
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10)),
                 ),
               ),
               const SizedBox(height: 10),
@@ -146,7 +162,8 @@ class _SendDetailsDialogBoxState extends State<SendDetailsDialogBox> {
                   hintText: AppLocalizations.of(context)!.contact,
                   filled: true,
                   fillColor: Colors.grey[200],
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10)),
                 ),
               ),
             ],
@@ -158,7 +175,8 @@ class _SendDetailsDialogBoxState extends State<SendDetailsDialogBox> {
             ),
             ElevatedButton(
               onPressed: () {
-                if (nameController.text.isNotEmpty && contactController.text.isNotEmpty) {
+                if (nameController.text.isNotEmpty &&
+                    contactController.text.isNotEmpty) {
                   setState(() {
                     providers.insert(
                       providers.length - 1,
@@ -183,6 +201,7 @@ class _SendDetailsDialogBoxState extends State<SendDetailsDialogBox> {
   Widget _buildTextField(String label, TextEditingController controller) {
     return TextField(
       controller: controller,
+      readOnly: true,
       decoration: InputDecoration(
         hintText: label,
         filled: true,

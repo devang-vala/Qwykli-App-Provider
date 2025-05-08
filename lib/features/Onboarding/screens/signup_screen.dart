@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shortly_provider/core/app_imports.dart';
@@ -13,7 +15,6 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:shortly_provider/ui/widget/language.dart';
 import 'package:shortly_provider/ui/widget/select_service_widegt.dart';
 
-//================= UI ==========================
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
 
@@ -22,15 +23,12 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
-  final _formKey1 = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
+
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _aadharController = TextEditingController();
-
-//BANK DETALS=====================
-
- 
 
   String lang = "en";
 
@@ -40,110 +38,91 @@ class _SignupScreenState extends State<SignupScreen> {
       create: (_) => SignupProvider(),
       child: Consumer<SignupProvider>(
         builder: (context, provider, _) => Scaffold(
-          body: SingleChildScrollView(
-              child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 25.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                CustomSpacers.height52,
-                // Align(
-                //   alignment: Alignment.centerRight,
-                //   child: GestureDetector(
-                //     onTap: (){
+          backgroundColor: Colors.white,
+          body: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CustomSpacers.height20,
 
-                //     },
-                //     child: Icon(Icons.more_vert))),
-                // CustomSpacers.height52,
-                LanguageSelector(col: Colors.black,),
-
-                // Profile Selection
-                GestureDetector(
-                  onTap: provider.pickImage,
-                  child: Center(
-                    child: CircleAvatar(
-                      backgroundColor: Colors.green,
-                      radius: 55,
-                      backgroundImage: provider.profileImage != null
-                          ? FileImage(provider.profileImage!)
-                          : null,
-                      child: provider.profileImage == null
-                          ? Icon(Icons.add_a_photo,
-                              size: 30, color: Colors.white)
-                          : null,
-                    ),
+                  //LANGUAGE SELECTOR ---------------------------------
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: LanguageSelector(col: Colors.black),
                   ),
-                ),
+                  CustomSpacers.height20,
 
-        
+                  //PROFILE IMAGE PICKER -------------------------------
+                  _buildProfileImageSelector(provider),
 
-                //FIILL INFO LIKE NAME , PHONE , ADDRESS , AADHAR
-                _buildFillInfo(),
-                CustomSpacers.height26,
+                  CustomSpacers.height30,
 
-                //SELECT MULTIPLE SERVICES
-                SelectServicesWidget(services: AppData.services),
+                  //FILL INFO --------------------------------------------
+                  _buildFillInfo(context),
 
-                CustomSpacers.height24,
+                  CustomSpacers.height20,
 
-                //SELECT SERVICES FOR LOCATION
-                _buildLocationSelector(provider),
-
-                //SIGNUP BUTTON ======================================
-                CustomButton(
-                  strButtonText: AppLocalizations.of(context)!.signup,
-                  buttonAction: () {
-                    if (_formKey1.currentState!.validate()) {
-                      // All fields are valid, proceed to next screen
-                      CustomNavigator.pushReplace(context, AppPages.approval);
-                    }
-                  },
-                  dHeight: 59.h,
-                  dWidth: 250.w,
-                  bgColor: Colors.blue,
-                  dCornerRadius: 18,
-                ),
-
-                CustomSpacers.height20,
-
-                //HAVE ACCOUNT FUNCTIONALITY ===============================================
-                Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(
-                    '${AppLocalizations.of(context)!.haveanaccount} ',
-                    style:
-                        TextStyle(fontSize: 17.w, fontWeight: FontWeight.w300),
+                  //SELECT CATEGORY AND SERVICES ---------------------------
+                  SelectServicesWidget(
+                    categoryToServices: AppData.categoryToServices,
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      CustomNavigator.pushReplace(context, AppPages.login);
+
+                  CustomSpacers.height20,
+
+                  //LOCATION SELECTOR ---------------------------------------
+                  _buildLocationSelector(context, provider),
+
+                  CustomSpacers.height20,
+
+                  //SIGNUP BUTTON -------------------------------------------
+                  CustomButton(
+                    strButtonText: AppLocalizations.of(context)!.signup,
+                    buttonAction: () {
+                      if (_formKey.currentState!.validate()) {
+                        CustomNavigator.pushReplace(context, AppPages.approval);
+                      }
                     },
-                    child: Text(
-                      AppLocalizations.of(context)!.login,
-                      style: TextStyle(
-                          color: Colors.blue,
-                          fontSize: 17.w,
-                          fontWeight: FontWeight.w500),
-                    ),
+                    dHeight: 55.h,
+                    dWidth: double.infinity,
+                    bgColor: const Color(0xFF0A3D91),
+                    dCornerRadius: 16,
                   ),
-                ]),
 
-                CustomSpacers.height30,
-              ],
+                  CustomSpacers.height20,
+
+                  /// Already have account
+                  _buildAlreadyHaveAnAccount(),
+                  CustomSpacers.height40,
+                ],
+              ),
             ),
-          )),
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildFillInfo() => Form(
-        key: _formKey1,
+  _buildProfileImageSelector(SignupProvider provider) => GestureDetector(
+        onTap: provider.pickImage,
+        child: CircleAvatar(
+          radius: 55,
+          backgroundColor: Colors.grey[300],
+          backgroundImage: provider.profileImage != null
+              ? FileImage(provider.profileImage!)
+              : null,
+          child: provider.profileImage == null
+              ? const Icon(Icons.add_a_photo, size: 32, color: Colors.grey)
+              : null,
+        ),
+      );
+
+  /// Personal Details Form
+  Widget _buildFillInfo(BuildContext context) => Form(
+        key: _formKey,
         child: Column(
           children: [
-            CustomSpacers.height26,
-
-            // Name Field
             MyTextfield(
               labelText: AppLocalizations.of(context)!.name,
               controller: _nameController,
@@ -151,47 +130,41 @@ class _SignupScreenState extends State<SignupScreen> {
               validator: (v) =>
                   v == null || v.isEmpty ? "Please enter name" : null,
             ),
-            CustomSpacers.height26,
-
-            // Contact Field with 10-digit validation
+            CustomSpacers.height20,
             MyTextfield(
               labelText: AppLocalizations.of(context)!.contact,
               controller: _phoneController,
               type: TextInputType.phone,
               maxLength: 10,
-              onChanged: (_) => setState(() {}),
               validator: (v) {
-                if (v == null || v.isEmpty)
+                if (v == null || v.isEmpty) {
                   return "Please enter contact number";
-                if (!RegExp(r'^\d{10}$').hasMatch(v))
+                }
+                if (!RegExp(r'^\d{10}$').hasMatch(v)) {
                   return "Contact must be 10 digits";
+                }
                 return null;
               },
             ),
-
-            CustomSpacers.height26,
-
-            // Address Field
+            CustomSpacers.height20,
             MyTextfield(
               labelText: AppLocalizations.of(context)!.address,
               controller: _addressController,
-              type: TextInputType.text,
+              type: TextInputType.streetAddress,
               validator: (v) =>
                   v == null || v.isEmpty ? "Please enter address" : null,
             ),
-            CustomSpacers.height26,
-
-            // Aadhar Field with 16-digit validation
+            CustomSpacers.height20,
             MyTextfield(
               labelText: AppLocalizations.of(context)!.aadhar,
               controller: _aadharController,
               type: TextInputType.number,
               maxLength: 16,
-              onChanged: (_) => setState(() {}),
               validator: (v) {
                 if (v == null || v.isEmpty) return "Please enter Aadhar number";
-                if (!RegExp(r'^\d{16}$').hasMatch(v))
+                if (!RegExp(r'^\d{16}$').hasMatch(v)) {
                   return "Aadhar must be 16 digits";
+                }
                 return null;
               },
             ),
@@ -199,21 +172,24 @@ class _SignupScreenState extends State<SignupScreen> {
         ),
       );
 
-  _buildLocationSelector(SignupProvider provider) => Column(
+  /// Working Location Selector--------------------------------------------------------------------------
+  Widget _buildLocationSelector(
+          BuildContext context, SignupProvider provider) =>
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Text("Working Location(s)",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(
+            "Working Locations",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
           CustomSpacers.height10,
           GestureDetector(
-            onTap: () => setState(() => _showLocationBottomSheet(provider)),
+            onTap: () => _showLocationBottomSheet(context, provider),
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -225,62 +201,94 @@ class _SignupScreenState extends State<SignupScreen> {
                           : AppLocalizations.of(context)!.chooselocations,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 14),
                     ),
                   ),
-                  Icon(Icons.arrow_drop_down)
+                  Icon(Icons.arrow_drop_down),
                 ],
               ),
             ),
           ),
-          CustomSpacers.height26,
         ],
       );
 
-  void _showLocationBottomSheet(SignupProvider provider) {
+  _buildAlreadyHaveAnAccount() => Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            '${AppLocalizations.of(context)!.haveanaccount} ',
+            style: TextStyle(fontSize: 16),
+          ),
+          GestureDetector(
+            onTap: () {
+              CustomNavigator.pushReplace(context, AppPages.login);
+            },
+            child: Text(
+              AppLocalizations.of(context)!.login,
+              style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.blue),
+            ),
+          ),
+        ],
+      );
+
+  /// Bottom Sheet for Location Selection----------------------------------------------------------------------
+  void _showLocationBottomSheet(BuildContext context, SignupProvider provider) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) => StatefulBuilder(
-        builder: (context, setModalState) => Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+        builder: (context, setStateBottomSheet) => Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 decoration: InputDecoration(
-                    hintText: AppLocalizations.of(context)!.searchlocation,
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12))),
+                  hintText: AppLocalizations.of(context)!.searchlocation,
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
                 onChanged: (value) {
                   provider.updateSearchQuery(value);
-                  setModalState(() {});
+                  setStateBottomSheet(() {});
                 },
               ),
-              CustomSpacers.height10,
+              CustomSpacers.height20,
               SizedBox(
                 height: 350.h,
-                child: ListView(
-                  children: provider.filteredLocations.map((location) {
-                    final selected =
-                        provider.selectedLocations.contains(location);
+                child: ListView.builder(
+                  itemCount: provider.filteredLocations.length,
+                  itemBuilder: (context, index) {
+                    final location = provider.filteredLocations[index];
                     return CheckboxListTile(
                       title: Text(location),
-                      value: selected,
+                      value: provider.selectedLocations.contains(location),
                       onChanged: (_) {
                         provider.toggleLocation(location);
-                        setModalState(() {});
+                        setStateBottomSheet(() {});
                       },
                     );
-                  }).toList(),
+                  },
                 ),
               ),
+              CustomSpacers.height20,
               ElevatedButton(
                 onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0A3D91),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
                 child: Text("Done"),
-              )
+              ),
             ],
           ),
         ),

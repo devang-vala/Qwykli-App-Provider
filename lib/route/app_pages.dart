@@ -2,6 +2,7 @@ class AppPages {
   static const String appEntry = '/';
 
   static const String login = '/login';
+  static const String otpverification = '/login/otpverification';
   static const String signup = '/signup';
   static const String approval = '/approval';
 

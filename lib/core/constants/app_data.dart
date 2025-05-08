@@ -51,20 +51,9 @@ static Color hexToColor(String hexColor) {
   static List<Map<String, dynamic>> InvoicePrice = [{"title" : "Intem1", "price" : "price1"}  , {"title" : "Intem1", "price" : "price1"}, {"title" : "Intem1", "price" : "price1"}, {"title" : "Intem1", "price" : "price1"}];
 
 
-  static final Map<String, List<String>> services = {
-    'Electrician': [
-      'Wiring',
-      'Fan Installation',
-      'Light Repair',
-      'Switchboard'
-    ],
-    'Plumber': [
-      'Tap Fix',
-      'Pipe Leak',
-      'Water Tank Cleaning',
-      'Bathroom Fitting'
-    ],
-    'Carpenter': ['Furniture Repair', 'New Furniture Making', 'Door Fitting'],
-    'Painter': ['Wall Painting', 'Texture Finish', 'Exterior Painting'],
+    static const Map<String, List<String>> categoryToServices = {
+    "Electrician": ["AC Repair", "Wiring", "Fan Installation"],
+    "Plumber": ["Leak Fix", "Pipe Installation"],
+    "Salon": ["Haircut", "Shaving"],
   };
 }

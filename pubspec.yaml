@@ -47,6 +47,9 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   badges: ^3.1.2
+  pin_code_fields: ^8.0.1
+  geolocator: ^14.0.0
+  geocoding: ^3.0.0
 
   
 dev_dependencies:

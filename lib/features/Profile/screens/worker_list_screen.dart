@@ -81,17 +81,17 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 0, 63, 164),
+        backgroundColor: Colors.black,
         automaticallyImplyLeading: false,
         centerTitle: false,
-        leading: GestureDetector(
-            onTap: () {
-              CustomNavigator.pop(context);
-            },
-            child: Icon(
-              Icons.arrow_back,
-              color: Colors.white,
-            )),
+        // leading: GestureDetector(
+        //     onTap: () {
+        //       CustomNavigator.pop(context);
+        //     },
+        //     child: Icon(
+        //       Icons.arrow_back,
+        //       color: Colors.white,
+        //     )),
         title: Text(
           "Worker List",
           style: TextStyle(
@@ -109,7 +109,7 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddWorkerDialog,
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Colors.black,
         child: const Icon(Icons.add),
       ),
     );
