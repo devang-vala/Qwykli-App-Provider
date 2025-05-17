@@ -1,124 +1,129 @@
+// ================= CLEANED WORKER LIST SCREEN ====================
 import 'package:flutter/material.dart';
-import 'package:shortly_provider/route/custom_navigator.dart';
+import 'package:provider/provider.dart';
+import 'package:shortly_provider/core/utils/screen_utils.dart';
+import 'package:shortly_provider/features/Profile/data/worker_list_provider.dart';
+import 'package:shortly_provider/ui/molecules/custom_button.dart';
 
-class WorkerListScreen extends StatefulWidget {
+class WorkerListScreen extends StatelessWidget {
   const WorkerListScreen({super.key});
 
   @override
-  State<WorkerListScreen> createState() => _WorkerListScreenState();
-}
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => WorkerListProvider(),
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          title: const Text("My Workers"  , style: TextStyle(color: Colors.white , fontWeight: FontWeight.w400 , fontSize: 18),),
+          centerTitle: false,
+        ),
+        body: Consumer<WorkerListProvider>(
+          builder: (context, provider, _) => Column(
+            children: [
+              Expanded(
+                child: provider.workers.isEmpty
+                    ? const Center(child: Text("No workers added yet."))
+                    : ListView.builder(
+                        itemCount: provider.workers.length,
+                        padding: const EdgeInsets.all(16),
+                        itemBuilder: (context, index) => Card(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                          child: ListTile(
+                            leading: const Icon(Icons.badge),
+                            title: Text(provider.workers[index].name),
+                            subtitle: Text(provider.workers[index].role),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.delete_outline),
+                              onPressed: () => provider.removeWorker(index),
+                            ),
+                          ),
+                        ),
+                      ),
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: CustomButton(
+                  strButtonText: "Add Worker",
+                  bgColor: Colors.black,
+                  textStyle: const TextStyle(color: Colors.white),
+                  buttonAction: () => _showAddWorkerDialog(context),
+                  dHeight: 50.h,
+                  dWidth: 200.w,
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
-class _WorkerListScreenState extends State<WorkerListScreen> {
-  List<Worker> workers = [];
-
-  void _showAddWorkerDialog() {
-    final TextEditingController nameController = TextEditingController();
-    final TextEditingController contactController = TextEditingController();
+  void _showAddWorkerDialog(BuildContext context) {
+    final provider = Provider.of<WorkerListProvider>(context, listen: false);
+    final nameController = TextEditingController();
+    final roleController = TextEditingController();
+    String? errorMessage;
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Add Worker"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(labelText: 'Name'),
+      builder: (_) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text("Add Worker"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Semantics(
+                label: 'Enter worker name',
+                child: TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    hintText: 'Name',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Semantics(
+                label: 'Enter worker role',
+                child: TextField(
+                  controller: roleController,
+                  decoration: const InputDecoration(
+                    hintText: 'Role',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+              if (errorMessage != null) ...[
+                const SizedBox(height: 10),
+                Text(errorMessage!,
+                    style: const TextStyle(color: Colors.red)),
+              ]
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
             ),
-            TextField(
-              controller: contactController,
-              decoration: const InputDecoration(labelText: 'Contact'),
-              keyboardType: TextInputType.phone,
-            ),
+            ElevatedButton(
+              onPressed: () {
+                final name = nameController.text.trim();
+                final role = roleController.text.trim();
+                final added = provider.addWorker(name, role);
+                if (added) {
+                  Navigator.pop(context);
+                } else {
+                  setState(() => errorMessage = "Please fill in all fields.");
+                }
+              },
+              child: const Text("Add"),
+            )
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text("Cancel"),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final name = nameController.text.trim();
-              final contact = contactController.text.trim();
-              if (name.isNotEmpty && contact.isNotEmpty) {
-                setState(() {
-                  workers.add(Worker(name: name, contact: contact));
-                });
-                Navigator.of(context).pop();
-              }
-            },
-            child: const Text("Add"),
-          ),
-        ],
       ),
     );
   }
-
-  Widget _buildWorkerCard(Worker worker) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 2,
-      child: ListTile(
-        leading: const Icon(Icons.person, color: Colors.blue),
-        title: Text(
-          worker.name,
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-        ),
-        subtitle: Text(worker.contact,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400)),
-        trailing: Icon(
-          Icons.verified,
-          size: 30,
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        automaticallyImplyLeading: false,
-        centerTitle: false,
-        // leading: GestureDetector(
-        //     onTap: () {
-        //       CustomNavigator.pop(context);
-        //     },
-        //     child: Icon(
-        //       Icons.arrow_back,
-        //       color: Colors.white,
-        //     )),
-        title: Text(
-          "Worker List",
-          style: TextStyle(
-              fontSize: 24, color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-      ),
-      body: workers.isEmpty
-          ? const Center(child: Text("No workers added yet."))
-          : ListView.builder(
-              itemCount: workers.length,
-              itemBuilder: (context, index) => Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: _buildWorkerCard(workers[index]),
-              ),
-            ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showAddWorkerDialog,
-        backgroundColor: Colors.black,
-        child: const Icon(Icons.add),
-      ),
-    );
-  }
-}
-
-class Worker {
-  final String name;
-  final String contact;
-
-  Worker({required this.name, required this.contact});
 }

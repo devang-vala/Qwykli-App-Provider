@@ -6,16 +6,16 @@ class ApprovalScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text("Shortly"),
-          centerTitle: false,
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(28.0),
+      appBar: AppBar(
+        title: const Text("Shortly"),
+        centerTitle: false,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(28.0),
+        child: Semantics(
+          label: 'Account creation successful message',
           child: Container(
             height: 200,
-            // width: 200,
-          
             decoration: BoxDecoration(
               color: Colors.green[50],
               borderRadius: BorderRadius.circular(12),
@@ -35,18 +35,21 @@ class ApprovalScreen extends StatelessWidget {
                       color: Colors.green[800],
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
-                    "Shortly will reach out to you after Approval !",
+                    "Shortly will reach out to you after Approval!",
                     style: TextStyle(
                       fontSize: 19,
                       color: Colors.green[700],
                     ),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
             ),
           ),
-        ));
+        ),
+      ),
+    );
   }
 }

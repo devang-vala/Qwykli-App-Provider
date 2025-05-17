@@ -88,8 +88,9 @@ class HistoryWidget extends StatelessWidget {
           const SizedBox(height: 16),
 
           _buildListTile(Icons.person, "Abhishek"),
-          CustomSpacers.height10,
           _buildListTile(Icons.location_on, "Noida Sector 128 - Uttar Pradesh"),
+          _buildListTile(Icons.lock_clock, "10:00 AM - 11:00 AM"),
+
 
           const SizedBox(height: 16),
         ],

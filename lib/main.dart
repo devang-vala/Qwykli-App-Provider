@@ -5,13 +5,19 @@ import 'package:shortly_provider/core/constants/app_themes.dart';
 import 'package:shortly_provider/core/constants/value_constants.dart';
 import 'package:shortly_provider/core/managers/app_manager.dart';
 import 'package:shortly_provider/core/utils/screen_utils.dart';
+import 'package:shortly_provider/features/Home/data/home_screen_provider.dart';
+import 'package:shortly_provider/features/Home/data/order_details_provider.dart';
+import 'package:shortly_provider/features/Home/data/saloon_order_details_provider.dart';
+import 'package:shortly_provider/features/Home/screens/home_screen.dart';
+import 'package:shortly_provider/features/Onboarding/data/language_change_provider.dart';
 import 'package:shortly_provider/features/Onboarding/data/signup_provider.dart';
 import 'package:shortly_provider/features/Onboarding/screens/splash_screen.dart';
-import 'package:shortly_provider/language_provider.dart';
+import 'package:shortly_provider/features/Profile/data/worker_list_provider.dart';
 import 'package:shortly_provider/route/custom_navigator.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'core/loaded_widget.dart';
 import 'package:geolocator/geolocator.dart';
+
 String lang = "";
 Position? currentPosition;
 String currentAddress = "Fetching location...";
@@ -27,10 +33,17 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-         ChangeNotifierProvider(create: (_) => SignupProvider()),
-         ChangeNotifierProvider(
+        ChangeNotifierProvider(create: (_) => SignupProvider()),
+        ChangeNotifierProvider(
           create: (_) => LanguageChangeProvider(),
         ),
+        ChangeNotifierProvider(create: (_) => OrderDetailsProvider()),
+        ChangeNotifierProvider(create: (_) => SaloonOrderDetailsProvider()),
+        ChangeNotifierProvider(
+            create: (_) => HomeScreenProvider(initialLocation: currentAddress)),
+
+        ChangeNotifierProvider(create: (_) => WorkerListProvider()),
+          
       ],
       child: ScreenUtilInit(
           designSize:

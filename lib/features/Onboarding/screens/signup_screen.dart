@@ -1,5 +1,4 @@
-// ignore_for_file: unused_import
-
+// ================= SIGNUP SCREEN ====================
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shortly_provider/core/app_imports.dart';
@@ -24,7 +23,6 @@ class SignupScreen extends StatefulWidget {
 
 class _SignupScreenState extends State<SignupScreen> {
   final _formKey = GlobalKey<FormState>();
-
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
@@ -46,53 +44,42 @@ class _SignupScreenState extends State<SignupScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   CustomSpacers.height20,
-
-                  //LANGUAGE SELECTOR ---------------------------------
                   Align(
                     alignment: Alignment.centerRight,
                     child: LanguageSelector(col: Colors.black),
                   ),
                   CustomSpacers.height20,
-
-                  //PROFILE IMAGE PICKER -------------------------------
-                  _buildProfileImageSelector(provider),
-
+                  Semantics(
+                    label: 'Profile image picker',
+                    button: true,
+                    child: _buildProfileImageSelector(provider),
+                  ),
                   CustomSpacers.height30,
-
-                  //FILL INFO --------------------------------------------
                   _buildFillInfo(context),
-
                   CustomSpacers.height20,
-
-                  //SELECT CATEGORY AND SERVICES ---------------------------
                   SelectServicesWidget(
                     categoryToServices: AppData.categoryToServices,
                   ),
-
                   CustomSpacers.height20,
-
-                  //LOCATION SELECTOR ---------------------------------------
                   _buildLocationSelector(context, provider),
-
                   CustomSpacers.height20,
-
-                  //SIGNUP BUTTON -------------------------------------------
-                  CustomButton(
-                    strButtonText: AppLocalizations.of(context)!.signup,
-                    buttonAction: () {
-                      if (_formKey.currentState!.validate()) {
-                        CustomNavigator.pushReplace(context, AppPages.approval);
-                      }
-                    },
-                    dHeight: 55.h,
-                    dWidth: double.infinity,
-                    bgColor: const Color(0xFF0A3D91),
-                    dCornerRadius: 16,
+                  Semantics(
+                    label: 'Sign up button',
+                    button: true,
+                    child: CustomButton(
+                      strButtonText: AppLocalizations.of(context)!.signup,
+                      buttonAction: () {
+                        if (_formKey.currentState!.validate()) {
+                          CustomNavigator.pushReplace(context, AppPages.approval);
+                        }
+                      },
+                      dHeight: 55.h,
+                      dWidth: double.infinity,
+                      bgColor: const Color(0xFF0A3D91),
+                      dCornerRadius: 16,
+                    ),
                   ),
-
                   CustomSpacers.height20,
-
-                  /// Already have account
                   _buildAlreadyHaveAnAccount(),
                   CustomSpacers.height40,
                 ],
@@ -104,21 +91,19 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  _buildProfileImageSelector(SignupProvider provider) => GestureDetector(
+  Widget _buildProfileImageSelector(SignupProvider provider) => GestureDetector(
         onTap: provider.pickImage,
         child: CircleAvatar(
           radius: 55,
           backgroundColor: Colors.grey[300],
-          backgroundImage: provider.profileImage != null
-              ? FileImage(provider.profileImage!)
-              : null,
+          backgroundImage:
+              provider.profileImage != null ? FileImage(provider.profileImage!) : null,
           child: provider.profileImage == null
               ? const Icon(Icons.add_a_photo, size: 32, color: Colors.grey)
               : null,
         ),
       );
 
-  /// Personal Details Form
   Widget _buildFillInfo(BuildContext context) => Form(
         key: _formKey,
         child: Column(
@@ -127,8 +112,7 @@ class _SignupScreenState extends State<SignupScreen> {
               labelText: AppLocalizations.of(context)!.name,
               controller: _nameController,
               type: TextInputType.text,
-              validator: (v) =>
-                  v == null || v.isEmpty ? "Please enter name" : null,
+              validator: (v) => v == null || v.isEmpty ? "Please enter name" : null,
             ),
             CustomSpacers.height20,
             MyTextfield(
@@ -137,12 +121,8 @@ class _SignupScreenState extends State<SignupScreen> {
               type: TextInputType.phone,
               maxLength: 10,
               validator: (v) {
-                if (v == null || v.isEmpty) {
-                  return "Please enter contact number";
-                }
-                if (!RegExp(r'^\d{10}$').hasMatch(v)) {
-                  return "Contact must be 10 digits";
-                }
+                if (v == null || v.isEmpty) return "Please enter contact number";
+                if (!RegExp(r'^\d{10}\$').hasMatch(v)) return "Contact must be 10 digits";
                 return null;
               },
             ),
@@ -151,8 +131,7 @@ class _SignupScreenState extends State<SignupScreen> {
               labelText: AppLocalizations.of(context)!.address,
               controller: _addressController,
               type: TextInputType.streetAddress,
-              validator: (v) =>
-                  v == null || v.isEmpty ? "Please enter address" : null,
+              validator: (v) => v == null || v.isEmpty ? "Please enter address" : null,
             ),
             CustomSpacers.height20,
             MyTextfield(
@@ -162,9 +141,7 @@ class _SignupScreenState extends State<SignupScreen> {
               maxLength: 16,
               validator: (v) {
                 if (v == null || v.isEmpty) return "Please enter Aadhar number";
-                if (!RegExp(r'^\d{16}$').hasMatch(v)) {
-                  return "Aadhar must be 16 digits";
-                }
+                if (!RegExp(r'^\d{16}\$').hasMatch(v)) return "Aadhar must be 16 digits";
                 return null;
               },
             ),
@@ -172,21 +149,15 @@ class _SignupScreenState extends State<SignupScreen> {
         ),
       );
 
-  /// Working Location Selector--------------------------------------------------------------------------
-  Widget _buildLocationSelector(
-          BuildContext context, SignupProvider provider) =>
-      Column(
+  Widget _buildLocationSelector(BuildContext context, SignupProvider provider) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "Working Locations",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-          ),
+          const Text("Working Locations", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
           CustomSpacers.height10,
           GestureDetector(
             onTap: () => _showLocationBottomSheet(context, provider),
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.grey),
                 borderRadius: BorderRadius.circular(12),
@@ -201,10 +172,10 @@ class _SignupScreenState extends State<SignupScreen> {
                           : AppLocalizations.of(context)!.chooselocations,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 14),
+                      style: const TextStyle(fontSize: 14),
                     ),
                   ),
-                  Icon(Icons.arrow_drop_down),
+                  const Icon(Icons.arrow_drop_down),
                 ],
               ),
             ),
@@ -212,35 +183,30 @@ class _SignupScreenState extends State<SignupScreen> {
         ],
       );
 
-  _buildAlreadyHaveAnAccount() => Row(
+  Widget _buildAlreadyHaveAnAccount() => Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
             '${AppLocalizations.of(context)!.haveanaccount} ',
-            style: TextStyle(fontSize: 16),
+            style: const TextStyle(fontSize: 16),
           ),
           GestureDetector(
-            onTap: () {
-              CustomNavigator.pushReplace(context, AppPages.login);
-            },
+            onTap: () => CustomNavigator.pushReplace(context, AppPages.login),
             child: Text(
               AppLocalizations.of(context)!.login,
-              style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.blue),
+              style:
+                  const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.blue),
             ),
           ),
         ],
       );
 
-  /// Bottom Sheet for Location Selection----------------------------------------------------------------------
   void _showLocationBottomSheet(BuildContext context, SignupProvider provider) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) => StatefulBuilder(
@@ -252,8 +218,7 @@ class _SignupScreenState extends State<SignupScreen> {
               TextField(
                 decoration: InputDecoration(
                   hintText: AppLocalizations.of(context)!.searchlocation,
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 onChanged: (value) {
                   provider.updateSearchQuery(value);
@@ -285,9 +250,10 @@ class _SignupScreenState extends State<SignupScreen> {
                   backgroundColor: const Color(0xFF0A3D91),
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
-                child: Text("Done"),
+                child: const Text("Done"),
               ),
             ],
           ),

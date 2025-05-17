@@ -1,9 +1,9 @@
+// ================= OTP VERIFICATION SCREEN ====================
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:shortly_provider/core/utils/custom_spacers.dart';
 import 'package:shortly_provider/core/utils/screen_utils.dart';
-
 import 'package:shortly_provider/route/app_pages.dart';
 import 'package:shortly_provider/route/custom_navigator.dart';
 
@@ -17,7 +17,7 @@ class OtpVerificationPage extends StatefulWidget {
 
 class _OtpVerificationPageState extends State<OtpVerificationPage> {
   late Timer _timer;
-  int _start = 120; // 2 minutes countdown
+  int _start = 120;
   String otpCode = '';
 
   @override
@@ -31,9 +31,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
       if (_start == 0) {
         _timer.cancel();
       } else {
-        setState(() {
-          _start--;
-        });
+        setState(() => _start--);
       }
     });
   }
@@ -61,39 +59,33 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               CustomSpacers.height52,
-
               const Text(
                 'Verification Code',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               CustomSpacers.height10,
-
               Text(
                 'Please enter the 4-digit code sent on\n+91 ${widget.phoneNumber}',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
-                    fontWeight: FontWeight.w700),
+                    fontSize: 16, color: Colors.grey, fontWeight: FontWeight.w700),
               ),
               CustomSpacers.height30,
-
-              // OTP input
-              _buildOTPInput(),
-
+              Semantics(
+                label: 'Enter the 4-digit OTP code',
+                child: _buildOTPInput(),
+              ),
               CustomSpacers.height10,
-
-              // Timer
               Text(
                 formattedTime,
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
-
               const Spacer(),
-
-              // Bottom Purple Button
-              _buildVerificationButton(),
+              Semantics(
+                label: 'Verify OTP Button',
+                button: true,
+                child: _buildVerificationButton(),
+              ),
             ],
           ),
         ),
@@ -101,7 +93,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     );
   }
 
-  _buildOTPInput() => PinCodeTextField(
+  Widget _buildOTPInput() => PinCodeTextField(
         appContext: context,
         length: 4,
         obscureText: false,
@@ -122,27 +114,20 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
         backgroundColor: Colors.white,
         enableActiveFill: false,
         keyboardType: TextInputType.number,
-        onChanged: (value) {
-          setState(() {
-            otpCode = value;
-          });
-        },
+        onChanged: (value) => setState(() => otpCode = value),
       );
 
-  _buildVerificationButton() => Padding(
+  Widget _buildVerificationButton() => Padding(
         padding: const EdgeInsets.only(bottom: 30),
         child: SizedBox(
           width: double.infinity,
           height: 60.h,
           child: ElevatedButton(
             onPressed: otpCode.length == 4
-                ? () {
-                    // Handle OTP Verification
-                    CustomNavigator.pushReplace(context, AppPages.navbar);
-                  }
+                ? () => CustomNavigator.pushReplace(context, AppPages.navbar)
                 : null,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF5D3FD3), // Purple
+              backgroundColor: const Color(0xFF5D3FD3),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -151,7 +136,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                 ? SizedBox(
                     width: 24.w,
                     height: 24.h,
-                    child: CircularProgressIndicator(
+                    child: const CircularProgressIndicator(
                       color: Colors.white,
                       strokeWidth: 2,
                     ),

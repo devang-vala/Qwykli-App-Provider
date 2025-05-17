@@ -1,21 +1,23 @@
-//================= PROVIDER ====================
+// ================= PROVIDER ====================
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:shortly_provider/core/app_imports.dart';
 import 'package:shortly_provider/core/constants/app_data.dart';
 
 class SignupProvider extends ChangeNotifier {
   File? profileImage;
-  final picker = ImagePicker();
+  final ImagePicker _picker = ImagePicker();
 
+  // User selections
   Map<String, Set<String>> selectedSubServices = {};
   Set<String> expandedServices = {};
+  Set<String> selectedLocations = {};
+  Set<String> selectedCategories = {};
+  Set<String> selectedServices = {};
 
-
-
-    Set<String> selectedLocations = {}; // updated to support multiple
   String searchQuery = '';
+  String? selectedCategory;
 
   List<String> allLocations = [
     'Connaught Place',
@@ -31,21 +33,19 @@ class SignupProvider extends ChangeNotifier {
   ];
 
   Future<void> pickImage() async {
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       profileImage = File(pickedFile.path);
       notifyListeners();
     }
   }
 
-  void toggleSubService(String service, String sub) {
-    if (!selectedSubServices.containsKey(service)) {
-      selectedSubServices[service] = {};
-    }
-    if (selectedSubServices[service]!.contains(sub)) {
-      selectedSubServices[service]!.remove(sub);
+  void toggleSubService(String service, String subService) {
+    selectedSubServices[service] ??= <String>{};
+    if (selectedSubServices[service]!.contains(subService)) {
+      selectedSubServices[service]!.remove(subService);
     } else {
-      selectedSubServices[service]!.add(sub);
+      selectedSubServices[service]!.add(subService);
     }
     notifyListeners();
   }
@@ -58,8 +58,6 @@ class SignupProvider extends ChangeNotifier {
     }
     notifyListeners();
   }
-
-
 
   void updateSearchQuery(String query) {
     searchQuery = query;
@@ -75,29 +73,19 @@ class SignupProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<String> get filteredLocations {
-    return allLocations
-        .where((loc) => loc.toLowerCase().contains(searchQuery.toLowerCase()))
-        .toList();
-  }
- 
-
-  String? selectedCategory;
-
-
+  List<String> get filteredLocations =>
+      allLocations.where((loc) => loc.toLowerCase().contains(searchQuery.toLowerCase())).toList();
 
   void selectCategory(String category) {
     selectedCategory = category;
     notifyListeners();
   }
-  Set<String> selectedCategories = {};
-  Set<String> selectedServices = {};
 
   void toggleCategory(String category) {
     if (selectedCategories.contains(category)) {
       selectedCategories.remove(category);
-      // remove its services
-      selectedServices.removeWhere((s) => AppData.categoryToServices[category]?.contains(s) ?? false);
+      selectedServices.removeWhere((service) =>
+          AppData.categoryToServices[category]?.contains(service) ?? false);
     } else {
       selectedCategories.add(category);
     }
@@ -110,6 +98,18 @@ class SignupProvider extends ChangeNotifier {
     } else {
       selectedServices.add(service);
     }
+    notifyListeners();
+  }
+
+  void reset() {
+    profileImage = null;
+    selectedSubServices.clear();
+    expandedServices.clear();
+    selectedLocations.clear();
+    selectedCategories.clear();
+    selectedServices.clear();
+    searchQuery = '';
+    selectedCategory = null;
     notifyListeners();
   }
 }

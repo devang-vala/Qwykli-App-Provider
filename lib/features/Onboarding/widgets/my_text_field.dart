@@ -24,22 +24,26 @@ class MyTextfield extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      keyboardType: type,
-      controller: controller,
-      maxLength: maxLength,
-      autovalidateMode: autovalidateMode,
-      onChanged: onChanged,
-      decoration: InputDecoration(
-        hintText: hintText,
-        labelText: labelText,
-        counterText: "", // hides character counter for cleaner UI
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(width: 0.1),
+    return Semantics(
+      label: labelText,
+      textField: true,
+      child: TextFormField(
+        keyboardType: type,
+        controller: controller,
+        maxLength: maxLength,
+        autovalidateMode: autovalidateMode,
+        onChanged: onChanged,
+        decoration: InputDecoration(
+          hintText: hintText,
+          labelText: labelText,
+          counterText: "", // hides character counter
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(width: 0.1),
+          ),
         ),
+        validator: validator,
       ),
-      validator: validator,
     );
   }
 }

@@ -1,246 +1,191 @@
+// ================= CLEANED SALOON ORDER DETAIL SCREEN ====================
 import 'package:flutter/material.dart';
-import 'package:shortly_provider/core/app_imports.dart';
-import 'package:shortly_provider/core/utils/screen_utils.dart';
+import 'package:provider/provider.dart';
+import 'package:shortly_provider/features/Home/data/saloon_order_details_provider.dart';
 import 'package:shortly_provider/features/Home/widget/order_details_widget.dart';
 import 'package:shortly_provider/ui/molecules/custom_button.dart';
 
 class SaloonOrderDetailsScreen extends StatelessWidget {
   final TextEditingController otpController = TextEditingController();
 
+  SaloonOrderDetailsScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.black,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => Navigator.pop(context),
-          ),
-          title: const Text(
-            "Order Details",
-            style: TextStyle(
-                fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white),
-          ),
-          centerTitle: false,
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              /// OTP Section
-              _buildOtp(),
+    return ChangeNotifierProvider(
+      create: (_) => SaloonOrderDetailsProvider(),
+      child: Consumer<SaloonOrderDetailsProvider>(
+        builder: (context, provider, _) => GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: Scaffold(
+            appBar: AppBar(
+              backgroundColor: Colors.black,
+              elevation: 0,
+              centerTitle: false,
+              leading: const BackButton(color: Colors.white),
+              title: const Text("Order Details",
+                  style: TextStyle(fontSize: 18, color: Colors.white)),
+            ),
+            body: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildOtpSection(context, provider),
+                  const SizedBox(height: 24),
+                  _sectionTitle("User Details"),
+                  const SizedBox(height: 10),
+                  const OrderDetailsWidget(),
+                  const SizedBox(height: 30),
+                  _sectionTitle("After Order"),
+                  const SizedBox(height: 10),
 
-              const SizedBox(height: 24),
-
-              /// Order Info
-              _sectionTitle("User Details"),
-              const SizedBox(height: 10),
-              const SaloonOrderDetailsWidget(),
-
-              const SizedBox(height: 30),
-
-              /// Provider Info
-              //   _sectionTitle("Provider Details"),
-              //   const SizedBox(height: 10),
-              //   _infoCard([
-              //     _buildInfoRow(Icons.person, "Abhishek Chauhan"),
-              //     _buildInfoRow(Icons.phone, "+91 8099950828"),
-              //     _buildInfoRow(Icons.lock_clock, "10 PM"),
-              //   ]),
-
-            //   const SizedBox(height: 30),
-
-              /// After Order
-              _sectionTitle("After Order"),
-              const SizedBox(height: 10),
-              ElevatedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.receipt_long, color: Colors.white),
-                label: const Text(
-                  "Make Receipt",
-                  style: TextStyle(color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                ),
-              ),
-
-              const Spacer(),
-
-              /// Close Order Button
-              Center(
-                child: ElevatedButton(
-                  onPressed: () {},
-                  child: const Text("Close Order",
-                      style: TextStyle(color: Colors.white)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red.shade400,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 40, vertical: 16),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                  AnimatedOpacity(
+                    opacity: provider.isOtpVerified ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 600),
+                    child: provider.isOtpVerified
+                        ? provider.isLoadingReceipt
+                            ? const Center(child: CircularProgressIndicator())
+                            : _actionButton(
+                                context,
+                                label: "Make Receipt",
+                                icon: Icons.receipt_long,
+                                color: Colors.deepPurple,
+                                onTap: () => _showConfirmDialog(
+                                  context,
+                                  title: "Create Receipt?",
+                                  onConfirm: provider.createReceipt,
+                                ),
+                              )
+                        : const SizedBox(),
                   ),
-                ),
+                  const SizedBox(height: 30),
+                  AnimatedOpacity(
+                    opacity: provider.isReceiptCreated ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 600),
+                    child: provider.isReceiptCreated
+                        ? _actionButton(
+                            context,
+                            label: "Close Order",
+                            icon: Icons.close,
+                            color: Colors.red,
+                            onTap: () => _showConfirmDialog(
+                              context,
+                              title: "Close Order?",
+                              onConfirm: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text("Order closed.")),
+                                );
+                              },
+                            ),
+                          )
+                        : const SizedBox(),
+                  )
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  /// OTP Entry + Verify Button
-  Widget _buildOtp() {
+  Widget _buildOtpSection(BuildContext context, SaloonOrderDetailsProvider provider) {
     return Row(
       children: [
         Expanded(
-          child: TextField(
-            controller: otpController,
-            decoration: InputDecoration(
-              hintText: "Enter OTP",
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+          child: Semantics(
+            label: 'Enter OTP',
+            child: TextField(
+              controller: otpController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                hintText: "Enter OTP",
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
           ),
         ),
-        const SizedBox(width: 16),
-        CustomButton(
-          strButtonText: "Verify",
-          dHeight: 45.h,
-          dWidth: 100.w,
-          bgColor: Colors.green,
-          textStyle: const TextStyle(
-              fontSize: 16, fontWeight: FontWeight.w500, color: Colors.white),
-          buttonAction: () {},
-        ),
+        const SizedBox(width: 12),
+        provider.isLoadingOtp
+            ? const SizedBox(
+                width: 40,
+                height: 40,
+                child: CircularProgressIndicator(),
+              )
+            : Semantics(
+                label: 'Verify OTP',
+                button: true,
+                child: CustomButton(
+                  strButtonText: "Verify",
+                  dHeight: 45,
+                  dWidth: 100,
+                  bgColor: Colors.green,
+                  textStyle: const TextStyle(color: Colors.white),
+                  buttonAction: () {
+                    final otp = otpController.text.trim();
+                    if (otp.isNotEmpty && RegExp(r'^\d{4,6}\$').hasMatch(otp)) {
+                      provider.verifyOtp(otp);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Enter a valid OTP")),
+                      );
+                    }
+                  },
+                ),
+              ),
       ],
     );
   }
 
-  /// Section Header
   Widget _sectionTitle(String title) => Text(
         title,
         style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
       );
 
-  /// Provider Info Card
-  Widget _infoCard(List<Widget> children) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF5F5F5),
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.shade200,
-            blurRadius: 6,
-            spreadRadius: 1,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(children: children),
-    );
-  }
-
-  Widget _buildInfoRow(IconData icon, String text) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-      child: Row(
-        children: [
-          Icon(icon, size: 20, color: Colors.deepPurple),
-          const SizedBox(width: 10),
-          Expanded(child: Text(text, style: const TextStyle(fontSize: 15))),
-        ],
-      ),
-    );
-  }
-}
-
-class SaloonOrderDetailsWidget extends StatelessWidget {
-  const SaloonOrderDetailsWidget({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 2,
-      child: Column(
-        children: [
-          // Header
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: const BoxDecoration(
-              color: Colors.black,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16),
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                Text("Saloon",
-                    style: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.w600)),
-                Text("At Saloon", style: TextStyle(color: Colors.white70)),
-              ],
+  Widget _actionButton(BuildContext context,
+      {required String label,
+      required IconData icon,
+      required Color color,
+      required VoidCallback onTap}) {
+    return Center(
+      child: Semantics(
+        label: label,
+        button: true,
+        child: ElevatedButton.icon(
+          onPressed: onTap,
+          icon: Icon(icon, color: Colors.white),
+          label: Text(label, style: const TextStyle(color: Colors.white)),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: color,
+            padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 14),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
           ),
-          const SizedBox(height: 12),
-          _buildListTile(Icons.person, "Ayush Raj"),
-          _buildListTile(Icons.location_on, "3:00 PM - 4:00 PM"),
-          const SizedBox(height: 10),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              CustomButton(
-                  dHeight: 50.h,
-                  dWidth: 150.w,
-                  dCornerRadius: 12,
-                  bgColor: const Color.fromARGB(255, 223, 223, 223),
-                  textStyle: TextStyle(
-                      color: Colors.black, fontWeight: FontWeight.w600),
-                  strButtonText: "Call",
-                  buttonAction: () {}),
-              CustomButton(
-                  dHeight: 50.h,
-                  dWidth: 150.w,
-                  dCornerRadius: 12,
-                  bgColor: const Color.fromARGB(255, 223, 223, 223),
-                  textStyle: TextStyle(
-                      color: Colors.black, fontWeight: FontWeight.w600),
-                  strButtonText: "Chat",
-                  buttonAction: () {}),
-            ],
-          ),
-          CustomSpacers.height20,
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildListTile(IconData icon, String title) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      child: Row(
-        children: [
-          Icon(icon, size: 20, color: Colors.grey[700]),
-          const SizedBox(width: 10),
-          Flexible(
-            child: Text(title, style: const TextStyle(fontSize: 15)),
+  void _showConfirmDialog(BuildContext context,
+      {required String title, required VoidCallback onConfirm}) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(title),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
           ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              onConfirm();
+            },
+            child: const Text("Confirm"),
+          )
         ],
       ),
     );

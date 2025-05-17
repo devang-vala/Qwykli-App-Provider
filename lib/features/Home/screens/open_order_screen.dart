@@ -1,5 +1,4 @@
-// ignore_for_file: must_be_immutable
-
+// ================= CLEANED OPEN ORDER SCREEN ====================
 import 'package:flutter/material.dart';
 import 'package:shortly_provider/core/utils/custom_spacers.dart';
 import 'package:shortly_provider/features/Home/screens/order_details_screen.dart';
@@ -17,85 +16,88 @@ class OpenOrderScreen extends StatelessWidget {
       body: ListView.builder(
         itemCount: 3,
         padding: const EdgeInsets.all(16),
-        itemBuilder: (context, index) {
-          return OpenCardWidget(index: index);
-        },
+        itemBuilder: (context, index) => OpenCardWidget(index: index),
       ),
     );
   }
 }
 
 class OpenCardWidget extends StatelessWidget {
-  int index;
-  OpenCardWidget({super.key, required this.index});
+  final int index;
+  const OpenCardWidget({super.key, required this.index});
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Column(
-        children: [
-          // Top banner
-          _buildCardTopBanner(),
-          CustomSpacers.height14,
-          _buildRowTile(Icons.location_on, "Noida Sector 128 - Uttar Pradesh"),
-          _buildRowTile(Icons.date_range, "30 April 2025"),
-          _buildRowTile(Icons.lock_clock, "4:00 Pm - 5:00 Pm"),
+    final type = _getType();
+    final mode = _getMode();
+    final date = _getDate();
 
-          CustomSpacers.height10,
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Row(
-              children: [
-                Expanded(
-                  child: CustomButton(
-                    strButtonText: "View details",
-                    dHeight: 40,
-                    bIcon: true,
-                    bIconLeft: true,
-                    buttonIcon: const Icon(Icons.details_sharp),
-                    bgColor: Colors.grey.shade200,
-                    textStyle: const TextStyle(fontWeight: FontWeight.w600),
-                    buttonAction: () {
-                      index != 0
-                          ? Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => OrderDetailsScreen()))
-                          : Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      SaloonOrderDetailsScreen()));
-                    },
+    return Semantics(
+      label: '$type booking $mode on $date',
+      child: Card(
+        elevation: 2,
+        margin: const EdgeInsets.only(bottom: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Column(
+          children: [
+            _buildCardTopBanner(type, mode),
+            CustomSpacers.height14,
+            _buildRowTile(Icons.location_on, "Noida Sector 128 - Uttar Pradesh"),
+            _buildRowTile(Icons.date_range, date),
+            _buildRowTile(Icons.lock_clock, "4:00 PM - 5:00 PM"),
+            CustomSpacers.height10,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: CustomButton(
+                      strButtonText: "View details",
+                      dHeight: 40,
+                      bIcon: true,
+                      bIconLeft: true,
+                      buttonIcon: const Icon(Icons.details_sharp),
+                      bgColor: Colors.grey.shade200,
+                      textStyle: const TextStyle(fontWeight: FontWeight.w600),
+                      buttonAction: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => index == 0
+                                ?  SaloonOrderDetailsScreen()
+                                :  OrderDetailsScreen(),
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                ),
-                CustomSpacers.width12,
-                Expanded(
-                  child: CustomButton(
-                    strButtonText: AppLocalizations.of(context)!.call,
-                    dHeight: 40,
-                    bIcon: true,
-                    bIconLeft: true,
-                    buttonIcon: const Icon(Icons.call),
-                    bgColor: Colors.green.shade400,
-                    textStyle: const TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.w600),
-                    buttonAction: () {},
+                  CustomSpacers.width12,
+                  Expanded(
+                    child: CustomButton(
+                      strButtonText: "Directions",
+                      dHeight: 40,
+                      bIcon: true,
+                      bIconLeft: true,
+                      buttonIcon: const Icon(Icons.directions, color: Colors.white),
+                      bgColor: Colors.green.shade400,
+                      textStyle: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      buttonAction: () {},
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          CustomSpacers.height16,
-        ],
+            CustomSpacers.height16,
+          ],
+        ),
       ),
     );
   }
 
-  _buildCardTopBanner() => Container(
+  Widget _buildCardTopBanner(String type, String mode) => Container(
         decoration: const BoxDecoration(
           color: Colors.black,
           borderRadius: BorderRadius.only(
@@ -107,22 +109,10 @@ class OpenCardWidget extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            index == 0
-                ? Text('Saloon',
-                    style: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.w600))
-                : index == 1
-                    ? Text('Saloon',
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.w600))
-                    : Text('Ac Service',
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.w600)),
-            index == 0
-                ? Text('At Saloon', style: TextStyle(color: Colors.white70))
-                : index == 1
-                    ? Text('At Home', style: TextStyle(color: Colors.white70))
-                    : Text('April 14', style: TextStyle(color: Colors.white70)),
+            Text(type,
+                style: const TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.w600)),
+            Text(mode, style: const TextStyle(color: Colors.white70)),
           ],
         ),
       );
@@ -134,11 +124,24 @@ class OpenCardWidget extends StatelessWidget {
         children: [
           Icon(icon, size: 20, color: Colors.grey[800]),
           CustomSpacers.width10,
-          Flexible(
-            child: Text(title, style: const TextStyle(fontSize: 15)),
-          ),
+          Flexible(child: Text(title, style: const TextStyle(fontSize: 15))),
         ],
       ),
     );
+  }
+
+  String _getType() {
+    if (index == 0 || index == 1) return 'Saloon';
+    return 'AC Service';
+  }
+
+  String _getMode() {
+    if (index == 0) return 'At Saloon';
+    if (index == 1) return 'At Home';
+    return 'April 14';
+  }
+
+  String _getDate() {
+    return '30 April 2025';
   }
 }

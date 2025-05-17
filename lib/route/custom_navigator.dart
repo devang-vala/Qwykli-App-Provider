@@ -103,7 +103,7 @@ class CustomNavigator {
 
       case AppPages.editprofilescreen:
         return MaterialPageRoute(
-          builder: (context) => EditProfilePage(),
+          builder: (context) => EditProfileScreen(),
           settings: settings,
         );
 

@@ -40,6 +40,8 @@ class OrderDetailsWidget extends StatelessWidget {
           const SizedBox(height: 10),
           _buildListTile(Icons.person, "Ayush Raj"),
           _buildListTile(Icons.location_on, "Noida Sector 128 - Uttar Pradesh"),
+          _buildListTile(Icons.lock_clock, "10:00 AM - 11:00 AM"),
+
           const SizedBox(height: 10),
         ],
       ),
