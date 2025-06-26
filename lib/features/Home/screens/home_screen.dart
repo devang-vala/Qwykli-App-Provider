@@ -1,7 +1,7 @@
 // ================= REFACTORED HOME SCREEN ====================
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:shortly_provider/l10n/app_localizations.dart';
 import 'package:shortly_provider/core/app_imports.dart';
 import 'package:shortly_provider/core/utils/screen_utils.dart';
 import 'package:shortly_provider/features/Home/data/home_screen_provider.dart';

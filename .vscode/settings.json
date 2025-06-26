@@ -1,7 +1,8 @@
 {
-    "files.associations": {
-        "vector": "cpp"
-    },
-    "cmake.sourceDirectory": "C:/ABHION_ABHI/projects/Shortly Internship/shortly-provider/linux",
-    "java.configuration.updateBuildConfiguration": "interactive"
+  "files.associations": {
+    "vector": "cpp"
+  },
+  "cmake.sourceDirectory": "C:/ABHION_ABHI/projects/Shortly Internship/shortly-provider/linux",
+  "java.configuration.updateBuildConfiguration": "interactive",
+  "dart.flutterSdkPath": ".fvm/versions/3.32.5"
 }

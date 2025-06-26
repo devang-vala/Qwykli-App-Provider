@@ -4,7 +4,7 @@ import 'package:shortly_provider/core/utils/custom_spacers.dart';
 import 'package:shortly_provider/features/Home/screens/order_details_screen.dart';
 import 'package:shortly_provider/features/Home/screens/saloon_order_detail_screen.dart';
 import 'package:shortly_provider/ui/molecules/custom_button.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:shortly_provider/l10n/app_localizations.dart';
 
 class OpenOrderScreen extends StatelessWidget {
   const OpenOrderScreen({super.key});

@@ -13,7 +13,7 @@ import 'package:shortly_provider/features/Onboarding/data/language_change_provid
 import 'package:shortly_provider/features/Onboarding/screens/splash_screen.dart';
 import 'package:shortly_provider/features/Profile/data/worker_list_provider.dart';
 import 'package:shortly_provider/route/custom_navigator.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:shortly_provider/l10n/app_localizations.dart';
 import 'core/loaded_widget.dart';
 import 'package:geolocator/geolocator.dart';
 

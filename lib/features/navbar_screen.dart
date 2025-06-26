@@ -5,7 +5,7 @@ import 'package:shortly_provider/features/Home/screens/home_screen.dart';
 import 'package:shortly_provider/features/Onboarding/screens/price_sheet.dart';
 import 'package:shortly_provider/features/Profile/screens/profile_screen.dart';
 import 'package:shortly_provider/features/Profile/screens/worker_list_screen.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:shortly_provider/l10n/app_localizations.dart';
 
 
 class NavBarScreen extends StatefulWidget {
