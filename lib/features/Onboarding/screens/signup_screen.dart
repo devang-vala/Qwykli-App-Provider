@@ -10,7 +10,7 @@ import 'package:shortly_provider/features/Onboarding/widgets/my_text_field.dart'
 import 'package:shortly_provider/route/app_pages.dart';
 import 'package:shortly_provider/route/custom_navigator.dart';
 import 'package:shortly_provider/ui/molecules/custom_button.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:shortly_provider/l10n/app_localizations.dart';
 import 'package:shortly_provider/ui/widget/language.dart';
 import 'package:shortly_provider/ui/widget/select_service_widegt.dart';
 

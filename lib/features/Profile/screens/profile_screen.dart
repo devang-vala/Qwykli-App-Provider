@@ -5,7 +5,7 @@ import 'package:shortly_provider/features/Service%20History/screens/history_orde
 import 'package:shortly_provider/features/Service%20History/screens/service_history_screen.dart';
 import 'package:shortly_provider/route/app_pages.dart';
 import 'package:shortly_provider/route/custom_navigator.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:shortly_provider/l10n/app_localizations.dart';
 import 'package:shortly_provider/ui/widget/language.dart';
 
 class ProfileScreen extends StatefulWidget {

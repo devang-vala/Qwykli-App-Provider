@@ -6,7 +6,7 @@ import 'package:shortly_provider/core/utils/screen_utils.dart';
 import 'package:shortly_provider/features/Onboarding/data/signup_provider.dart';
 import 'package:shortly_provider/route/app_pages.dart';
 import 'package:shortly_provider/route/custom_navigator.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:shortly_provider/l10n/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

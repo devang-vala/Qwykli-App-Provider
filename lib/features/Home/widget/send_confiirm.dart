@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:shortly_provider/l10n/app_localizations.dart';
 
 class SendConfirmDialogBox extends StatefulWidget {
   const SendConfirmDialogBox({super.key});
