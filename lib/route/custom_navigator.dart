@@ -1,6 +1,5 @@
 import 'package:shortly_provider/features/Home/screens/notification_screen.dart';
 import 'package:shortly_provider/features/Home/screens/order_details_screen.dart';
-import 'package:shortly_provider/features/Onboarding/screens/approval_screen.dart';
 import 'package:shortly_provider/features/auth/screens/login_screen.dart';
 import 'package:shortly_provider/features/auth/screens/otp_verification_screen.dart';
 import 'package:shortly_provider/features/Onboarding/screens/price_sheet.dart';
@@ -50,11 +49,6 @@ class CustomNavigator {
           settings: settings,
         );
 
-      case AppPages.approval:
-        return MaterialPageRoute(
-          builder: (context) => ApprovalScreen(),
-          settings: settings,
-        );
       case AppPages.navbar:
         return MaterialPageRoute(
           builder: (context) => NavBarScreen(),
