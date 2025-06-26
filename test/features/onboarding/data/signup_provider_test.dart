@@ -1,6 +1,6 @@
 // ================= SIGNUP PROVIDER + VALIDATION TESTS ====================
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shortly_provider/features/Onboarding/data/signup_provider.dart';
+import 'package:shortly_provider/features/auth/data/signup_provider.dart';
 
 void main() {
   late SignupProvider provider;

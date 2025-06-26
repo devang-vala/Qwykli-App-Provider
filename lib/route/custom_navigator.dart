@@ -1,10 +1,9 @@
 import 'package:shortly_provider/features/Home/screens/notification_screen.dart';
 import 'package:shortly_provider/features/Home/screens/order_details_screen.dart';
 import 'package:shortly_provider/features/Onboarding/screens/approval_screen.dart';
-import 'package:shortly_provider/features/Onboarding/screens/login_screen.dart';
-import 'package:shortly_provider/features/Onboarding/screens/otp_verification_screen.dart';
+import 'package:shortly_provider/features/auth/screens/login_screen.dart';
+import 'package:shortly_provider/features/auth/screens/otp_verification_screen.dart';
 import 'package:shortly_provider/features/Onboarding/screens/price_sheet.dart';
-import 'package:shortly_provider/features/Onboarding/screens/signup_screen.dart';
 import 'package:shortly_provider/features/Onboarding/screens/splash_screen.dart';
 import 'package:shortly_provider/features/Profile/screens/bank_details_screen.dart';
 import 'package:shortly_provider/features/Profile/screens/add_services_screen.dart';
@@ -12,7 +11,9 @@ import 'package:shortly_provider/features/Profile/screens/edit_profile_screen.da
 import 'package:shortly_provider/features/Profile/screens/worker_list_screen.dart';
 import 'package:shortly_provider/features/Profile/screens/working_area_screen.dart';
 import 'package:shortly_provider/features/Service%20History/screens/history_order_details_screen.dart';
+import 'package:shortly_provider/features/auth/screens/signup_flow.dart';
 import 'package:shortly_provider/features/navbar_screen.dart';
+import 'package:shortly_provider/features/auth/screens/registration_success_screen.dart';
 
 import '../core/app_imports.dart';
 import 'app_pages.dart';
@@ -45,7 +46,7 @@ class CustomNavigator {
 
       case AppPages.signup:
         return MaterialPageRoute(
-          builder: (context) => SignupScreen(),
+          builder: (context) => SignupFlow(),
           settings: settings,
         );
 
@@ -107,7 +108,11 @@ class CustomNavigator {
           settings: settings,
         );
 
-
+      case AppPages.registrationSuccess:
+        return MaterialPageRoute(
+          builder: (context) => RegistrationSuccessScreen(),
+          settings: settings,
+        );
 
       case AppPages.historyOrderDetailsScreen:
         return MaterialPageRoute(

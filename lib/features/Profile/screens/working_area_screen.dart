@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shortly_provider/core/utils/custom_spacers.dart';
 import 'package:shortly_provider/core/utils/screen_utils.dart';
-import 'package:shortly_provider/features/Onboarding/data/signup_provider.dart';
+import 'package:shortly_provider/features/auth/data/signup_provider.dart';
 import 'package:shortly_provider/route/custom_navigator.dart';
 import 'package:shortly_provider/l10n/app_localizations.dart';
 
