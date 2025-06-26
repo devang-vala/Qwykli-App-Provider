@@ -11,11 +11,7 @@ class AppPages {
   static const String OrderDetailsScreen = '/orderdetailsscreen';
   static const String nootificationScreen = '/notiificationscreen';
 
-
-
   static const String historyOrderDetailsScreen = '/historyorderdetailsscreen';
-
-
 
 //PROFILE SCREEN========================================
   static const String priceselcetionscreen = '/priceselectionscreen';
@@ -25,18 +21,5 @@ class AppPages {
   static const String workingareascreen = '/workingareascreen';
   static const String bankdetailsscreen = '/bankdetailsscreen';
 
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
+  static const String registrationSuccess = '/registration-success';
 }

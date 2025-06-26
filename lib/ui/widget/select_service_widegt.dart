@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shortly_provider/features/Onboarding/data/signup_provider.dart';
+import 'package:shortly_provider/features/auth/data/signup_provider.dart';
 
 class SelectServicesWidget extends StatefulWidget {
   final Map<String, List<String>> categoryToServices;
