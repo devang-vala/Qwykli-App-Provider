@@ -3,7 +3,6 @@ import 'package:shortly_provider/core/constants/app_icons.dart';
 import 'package:shortly_provider/core/utils/custom_spacers.dart';
 import 'package:shortly_provider/route/app_pages.dart';
 import 'dart:async';
-
 import 'package:shortly_provider/route/custom_navigator.dart';
 import 'package:shortly_provider/core/services/auth_service.dart';
 
@@ -24,11 +23,13 @@ class _SplashScreenState extends State<SplashScreen> {
   void _navigateAfterSplash() async {
     await Future.delayed(const Duration(seconds: 2));
     final isValid = await AuthService.isTokenValid();
-    if (isValid) {
-      CustomNavigator.pushReplace(context, AppPages.navbar);
-    } else {
-      await AuthService.logout();
-      CustomNavigator.pushReplace(context, AppPages.phone_input);
+    if (mounted) {
+      if (isValid) {
+        CustomNavigator.pushReplace(context, AppPages.navbar);
+      } else {
+        await AuthService.logout();
+        CustomNavigator.pushReplace(context, AppPages.phone_input);
+      }
     }
   }
 
@@ -54,6 +55,11 @@ class _SplashScreenState extends State<SplashScreen> {
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
+            ),
+            CustomSpacers.height30,
+            // Add a loading indicator
+            const CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.white70),
             ),
           ],
         ),
