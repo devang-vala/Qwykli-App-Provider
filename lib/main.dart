@@ -11,7 +11,6 @@ import 'package:shortly_provider/features/Home/data/saloon_order_details_provide
 import 'package:shortly_provider/features/Home/screens/home_screen.dart';
 import 'package:shortly_provider/features/Onboarding/data/language_change_provider.dart';
 import 'package:shortly_provider/features/Onboarding/screens/splash_screen.dart';
-import 'package:shortly_provider/features/Profile/data/worker_list_provider.dart';
 import 'package:shortly_provider/route/custom_navigator.dart';
 import 'package:shortly_provider/l10n/app_localizations.dart';
 import 'core/loaded_widget.dart';
@@ -36,12 +35,7 @@ class MyApp extends StatelessWidget {
           create: (_) => LanguageChangeProvider(),
         ),
         ChangeNotifierProvider(create: (_) => OrderDetailsProvider()),
-        ChangeNotifierProvider(create: (_) => SaloonOrderDetailsProvider()),
-        ChangeNotifierProvider(
-            create: (_) => HomeScreenProvider(initialLocation: currentAddress)),
-
-        ChangeNotifierProvider(create: (_) => WorkerListProvider()),
-          
+        ChangeNotifierProvider(create: (_) => SaloonOrderDetailsProvider()),          
       ],
       child: ScreenUtilInit(
           designSize:

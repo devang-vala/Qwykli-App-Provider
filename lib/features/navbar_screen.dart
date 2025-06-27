@@ -4,9 +4,7 @@ import 'package:shortly_provider/core/utils/screen_utils.dart';
 import 'package:shortly_provider/features/Home/screens/home_screen.dart';
 import 'package:shortly_provider/features/Onboarding/screens/price_sheet.dart';
 import 'package:shortly_provider/features/Profile/screens/profile_screen.dart';
-import 'package:shortly_provider/features/Profile/screens/worker_list_screen.dart';
 import 'package:shortly_provider/l10n/app_localizations.dart';
-
 
 class NavBarScreen extends StatefulWidget {
   @override
@@ -20,7 +18,6 @@ class _NavBarScreenState extends State<NavBarScreen> {
   final List<Widget> _pages = [
     const HomeScreen(),
     PriceSelectionPage(),
-    WorkerListScreen(),
     const ProfileScreen(),
   ];
 
@@ -84,10 +81,6 @@ class _NavBarScreenState extends State<NavBarScreen> {
                 BottomNavigationBarItem(
                   icon: Icon(Icons.price_change),
                   label: "Price Sheet",
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.workspaces_rounded),
-                  label: "Worker",
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.person_2_outlined),

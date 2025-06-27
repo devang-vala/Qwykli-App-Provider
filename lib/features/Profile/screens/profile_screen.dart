@@ -7,6 +7,7 @@ import 'package:shortly_provider/route/app_pages.dart';
 import 'package:shortly_provider/route/custom_navigator.dart';
 import 'package:shortly_provider/l10n/app_localizations.dart';
 import 'package:shortly_provider/ui/widget/language.dart';
+import 'package:shortly_provider/core/services/profile_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -16,8 +17,51 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  Map<String, dynamic>? profileData;
+  bool isLoading = true;
+  String? error;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchProfile();
+  }
+
+  Future<void> _fetchProfile() async {
+    setState(() {
+      isLoading = true;
+      error = null;
+    });
+    try {
+      final data = await ProfileService.getProfile();
+      setState(() {
+        profileData = data;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        error = e.toString();
+        isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+    if (error != null) {
+      return Scaffold(
+        body: Center(child: Text('Error: ' + error!)),
+      );
+    }
+    final name = profileData?['name'] ?? '';
+    final phone = profileData?['phone'] ?? '';
+    final photo = profileData?['photo'] ??
+        'https://randomuser.me/api/portraits/men/46.jpg';
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
@@ -50,20 +94,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 8),
                   CircleAvatar(
                     radius: 40,
-                    backgroundImage: NetworkImage(
-                        'https://randomuser.me/api/portraits/men/46.jpg'),
+                    backgroundImage: NetworkImage(photo),
                   ),
                   const SizedBox(height: 12),
-                  const Text(
-                    "Abhishek Chauhan",
-                    style: TextStyle(
+                  Text(
+                    name,
+                    style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.w600),
                   ),
-                  const Text(
-                    "+91 8099950828",
-                    style: TextStyle(color: Colors.white70),
+                  Text(
+                    phone,
+                    style: const TextStyle(color: Colors.white70),
                   ),
                 ],
               ),
@@ -84,11 +127,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Icons.work, AppLocalizations.of(context)!.workingarea,
                       () {
                     CustomNavigator.pushTo(context, AppPages.workingareascreen);
-                  }),
-                  _buildIconButton(
-                      Icons.person, AppLocalizations.of(context)!.workerlist,
-                      () {
-                    CustomNavigator.pushTo(context, AppPages.workerlistscreen);
                   }),
                 ],
               ),
@@ -113,8 +151,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               child: Column(
                 children: [
-                  _buildInfoRow(AppLocalizations.of(context)!.address,
-                      "Noida Sector 128, Uttar Pradesh"),
                   GestureDetector(
                       onTap: () {
                         Navigator.push(
@@ -124,29 +160,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       },
                       child: _buildInfoRow(
                           AppLocalizations.of(context)!.totalorderclosed + ' :',
-                          "9")),
+                          (profileData?['totalOrderClosed']?.toString() ??
+                              '0'))),
                   // _buildInfoRow(AppLocalizations.of(context)!.totalearnings + ' :', "₹10,000"),
                   _buildInfoRow(
-                      AppLocalizations.of(context)!.pendingorders + ' :', "3"),
+                      AppLocalizations.of(context)!.pendingorders + ' :',
+                      (profileData?['pendingOrders']?.toString() ?? '0')),
                 ],
               ),
             ),
 
             CustomSpacers.height20,
 
-            /// Settings Options
-            _buildListTile(Icons.price_change, "Price Sheet", () {
-              CustomNavigator.pushTo(context, AppPages.priceselcetionscreen);
-            }),
-            _buildListTile(Icons.account_balance, "Bank Details", () {
-              CustomNavigator.pushTo(context, AppPages.bankdetailsscreen);
-            }),
             _buildListTile(
                 Icons.edit, AppLocalizations.of(context)!.editprofile, () {
               CustomNavigator.pushTo(context, AppPages.editprofilescreen);
             }),
-            _buildListTile(
-                Icons.share, AppLocalizations.of(context)!.refer, () {}),
             _buildListTile(
                 Icons.help, AppLocalizations.of(context)!.gethelp, () {}),
             _buildListTile(Icons.logout, AppLocalizations.of(context)!.logout,
