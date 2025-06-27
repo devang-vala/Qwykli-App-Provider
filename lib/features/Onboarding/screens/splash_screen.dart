@@ -5,8 +5,7 @@ import 'package:shortly_provider/route/app_pages.dart';
 import 'dart:async';
 
 import 'package:shortly_provider/route/custom_navigator.dart';
-
-
+import 'package:shortly_provider/core/services/auth_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -19,9 +18,18 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Timer(const Duration(seconds: 5), () {
-      CustomNavigator.pushReplace(context, AppPages.login);
-    });
+    _navigateAfterSplash();
+  }
+
+  void _navigateAfterSplash() async {
+    await Future.delayed(const Duration(seconds: 2));
+    final isValid = await AuthService.isTokenValid();
+    if (isValid) {
+      CustomNavigator.pushReplace(context, AppPages.navbar);
+    } else {
+      await AuthService.logout();
+      CustomNavigator.pushReplace(context, AppPages.phone_input);
+    }
   }
 
   @override
@@ -34,7 +42,7 @@ class _SplashScreenState extends State<SplashScreen> {
           children: [
             // Logo Image
             Image.asset(
-                AppIcons.app_logo, 
+              AppIcons.app_logo,
               height: 100,
             ),
             CustomSpacers.height20,

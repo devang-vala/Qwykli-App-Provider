@@ -12,14 +12,14 @@ class NetworkConfig {
   // Development base URL (auto-adjusts based on platform)
   static String getDevBaseUrl() {
     if (Platform.isAndroid) {
-      return 'http://192.168.77.217:8080/api';
+      return 'http://10.0.2.2:8080/api';
     }
 
     if (Platform.isIOS || kIsWeb) {
       return 'http://localhost:8080/api';
     }
 
-    return 'http://192.168.77.217:8080/api';
+    return 'http://10.0.2.2:8080/api';
   }
 
   /// Public base URL selector

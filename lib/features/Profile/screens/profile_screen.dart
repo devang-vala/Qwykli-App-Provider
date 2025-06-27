@@ -8,6 +8,7 @@ import 'package:shortly_provider/route/custom_navigator.dart';
 import 'package:shortly_provider/l10n/app_localizations.dart';
 import 'package:shortly_provider/ui/widget/language.dart';
 import 'package:shortly_provider/core/services/profile_service.dart';
+import 'package:shortly_provider/core/services/auth_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -24,6 +25,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
+    _checkTokenAndFetchProfile();
+  }
+
+  Future<void> _checkTokenAndFetchProfile() async {
+    final isValid = await AuthService.isTokenValid();
+    if (!isValid) {
+      await AuthService.logout();
+      if (mounted) {
+        CustomNavigator.pushReplace(context, AppPages.phone_input);
+      }
+      return;
+    }
     _fetchProfile();
   }
 
@@ -39,10 +52,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
         isLoading = false;
       });
     } catch (e) {
-      setState(() {
-        error = e.toString();
-        isLoading = false;
-      });
+      print('Profile fetch error: $e');
+      // If error is 401 or token expired, logout and redirect
+      if (e.toString().contains('401') ||
+          e.toString().toLowerCase().contains('expired')) {
+        await AuthService.logout();
+        if (mounted) {
+          CustomNavigator.pushReplace(context, AppPages.phone_input);
+        }
+      } else {
+        setState(() {
+          error = e.toString();
+          isLoading = false;
+        });
+      }
     }
   }
 
@@ -59,6 +82,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
     final name = profileData?['name'] ?? '';
+    final email = profileData?['email'] ?? '';
     final phone = profileData?['phone'] ?? '';
     final photo = profileData?['photo'] ??
         'https://randomuser.me/api/portraits/men/46.jpg';
@@ -106,6 +130,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   Text(
                     phone,
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                  Text(
+                    email,
                     style: const TextStyle(color: Colors.white70),
                   ),
                 ],
@@ -172,15 +200,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             CustomSpacers.height20,
 
+            // _buildListTile(
+            //     Icons.edit, AppLocalizations.of(context)!.editprofile, () {
+            //   CustomNavigator.pushTo(context, AppPages.editprofilescreen);
+            // }),
             _buildListTile(
-                Icons.edit, AppLocalizations.of(context)!.editprofile, () {
-              CustomNavigator.pushTo(context, AppPages.editprofilescreen);
-            }),
-            _buildListTile(
-                Icons.help, AppLocalizations.of(context)!.gethelp, () {}),
+                Icons.help, AppLocalizations.of(context)!.gethelp, () {
+                  CustomNavigator.pushTo(context, AppPages.gethelp);
+                }),
             _buildListTile(Icons.logout, AppLocalizations.of(context)!.logout,
-                () {
-              CustomNavigator.pushReplace(context, AppPages.login);
+                () async {
+              await AuthService.logout();
+              CustomNavigator.pushReplace(context, AppPages.phone_input);
             }),
           ],
         ),

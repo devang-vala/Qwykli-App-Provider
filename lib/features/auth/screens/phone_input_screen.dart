@@ -10,14 +10,16 @@ import 'package:http/http.dart' as http;
 import 'package:shortly_provider/core/network/network_config.dart';
 import 'package:shortly_provider/core/services/auth_service.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+//we are using "LoginScreen" name here but actually it is register screen
+// login.dart is actual login screen
+class PhoneInputScreen extends StatefulWidget {
+  const PhoneInputScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<PhoneInputScreen> createState() => _PhoneInputScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _PhoneInputScreenState extends State<PhoneInputScreen> {
   final TextEditingController phoneController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String? phoneError;
@@ -38,6 +40,27 @@ class _LoginScreenState extends State<LoginScreen> {
                 _buildInputTextField(),
                 CustomSpacers.height30,
                 _buildVerificationButton(),
+                // Provider Login Button
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
+                  child: SizedBox(
+                    width: 300.w,
+                    child: TextButton(
+                      onPressed: () {
+                        CustomNavigator.pushTo(context, AppPages.login);
+                      },
+                      child: const Text(
+                        "Already a provider? Login to your account",
+                        style: TextStyle(
+                          color: Color(0xFF5D3FD3),
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
                 // _buildDontHaveAccount(context),
               ],
             ),
@@ -132,8 +155,7 @@ class _LoginScreenState extends State<LoginScreen> {
               setState(() => phoneError = null);
               try {
                 // Call AuthService to request OTP
-                final response =
-                    await AuthService.requestProviderLoginOTP(phone);
+                final response = await AuthService.requestProviderOTP(phone);
                 print('OTP response: $response'); // Debug print
                 if (response['success'] == true) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -142,7 +164,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   CustomNavigator.pushReplace(
                     context,
                     AppPages.otpverification,
-                    arguments: {"phoneNumber": phone},
+                    arguments: {"phoneNumber": phone, "isLogin": false},
                   );
                 } else {
                   setState(() =>

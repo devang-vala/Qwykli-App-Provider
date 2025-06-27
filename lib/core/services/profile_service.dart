@@ -1,13 +1,20 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shortly_provider/core/network/network_config.dart';
-import 'package:shortly_provider/core/managers/shared_preference_manager.dart';
+import 'package:shortly_provider/core/services/auth_service.dart';
 import 'package:shortly_provider/core/constants/app_strings.dart';
+import 'package:cloudinary_public/cloudinary_public.dart';
 
 class ProfileService {
+  static final CloudinaryPublic _cloudinary = CloudinaryPublic(
+    'dsh447lvk', // cloud name
+    'mindbend_alumni_gallery', // upload preset
+  );
+
   static Future<String?> _getToken() async {
-    // Get token from shared preferences
-    return SharedPreferencesManager.getString(STRING_KEY_APPTOKEN);
+    // Get token from secure storage
+    return await AuthService.getToken();
   }
 
   static Future<Map<String, dynamic>> getProfile() async {
@@ -27,17 +34,47 @@ class ProfileService {
     }
   }
 
-  static Future<Map<String, dynamic>> updateProfile(
-      Map<String, dynamic> data) async {
+  static Future<String?> _uploadProfileImage(
+      File imageFile, String userId) async {
+    try {
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final fileName = 'provider_${userId}_$timestamp';
+      CloudinaryResponse response = await _cloudinary.uploadFile(
+        CloudinaryFile.fromFile(
+          imageFile.path,
+          folder: 'provider_profile_images',
+          publicId: fileName,
+          resourceType: CloudinaryResourceType.Image,
+        ),
+      );
+      String transformedUrl = response.secureUrl
+          .replaceFirst('upload/', 'upload/w_400,h_400,c_fill,q_auto,f_auto/');
+      return transformedUrl;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  static Future<Map<String, dynamic>> updateProfile(Map<String, dynamic> data,
+      {File? photo, bool removePhoto = false, String? userId}) async {
     final token = await _getToken();
     final url = '${NetworkConfig.baseUrl}/auth/provider-profile';
+    final updateData = Map<String, dynamic>.from(data);
+    if (removePhoto) {
+      updateData['photo'] = '';
+    } else if (photo != null && userId != null) {
+      final photoUrl = await _uploadProfileImage(photo, userId);
+      if (photoUrl != null) {
+        updateData['photo'] = photoUrl;
+      }
+    }
     final response = await http.put(
       Uri.parse(url),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
       },
-      body: jsonEncode(data),
+      body: jsonEncode(updateData),
     );
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
@@ -153,6 +190,24 @@ class ProfileService {
       return jsonDecode(response.body);
     } else {
       throw Exception('Failed to remove service area');
+    }
+  }
+
+  static Future<List<dynamic>> getAllServices() async {
+    final token = await _getToken();
+    final url = '${NetworkConfig.baseUrl}/services';
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data is List ? data : (data['services'] ?? []);
+    } else {
+      throw Exception('Failed to load available services');
     }
   }
 }

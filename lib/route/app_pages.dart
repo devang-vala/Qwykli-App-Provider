@@ -2,9 +2,11 @@ class AppPages {
   static const String appEntry = '/';
 
   static const String login = '/login';
+  static const String phone_input = '/phone-input';
   static const String otpverification = '/login/otpverification';
   static const String signup = '/signup';
   static const String approval = '/approval';
+  static const String gethelp = '/gethelp';
 
   static const String navbar = '/navbar';
 

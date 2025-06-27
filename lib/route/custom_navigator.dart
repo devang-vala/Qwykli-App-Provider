@@ -1,6 +1,8 @@
 import 'package:shortly_provider/features/Home/screens/notification_screen.dart';
 import 'package:shortly_provider/features/Home/screens/order_details_screen.dart';
-import 'package:shortly_provider/features/auth/screens/login_screen.dart';
+import 'package:shortly_provider/features/Profile/screens/get_help_screen.dart';
+import 'package:shortly_provider/features/auth/screens/login.dart';
+import 'package:shortly_provider/features/auth/screens/phone_input_screen.dart';
 import 'package:shortly_provider/features/auth/screens/otp_verification_screen.dart';
 import 'package:shortly_provider/features/Onboarding/screens/price_sheet.dart';
 import 'package:shortly_provider/features/Onboarding/screens/splash_screen.dart';
@@ -32,11 +34,25 @@ class CustomNavigator {
           builder: (context) => LoginScreen(),
           settings: settings,
         );
+
+      case AppPages.phone_input:
+        return MaterialPageRoute(
+          builder: (context) => PhoneInputScreen(),
+          settings: settings,
+        );
+
+        case AppPages.gethelp:
+        return MaterialPageRoute(
+          builder: (context) => GetHelpScreen(),
+          settings: settings,
+        );
+
       case AppPages.otpverification:
         final args = settings.arguments as Map<String, dynamic>;
         return MaterialPageRoute(
           builder: (context) => OtpVerificationPage(
             phoneNumber: args["phoneNumber"] ?? '',
+            isLogin: args["isLogin"] ?? false,
           ),
           settings: settings,
         );
