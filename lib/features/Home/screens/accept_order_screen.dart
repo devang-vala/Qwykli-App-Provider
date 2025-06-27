@@ -39,7 +39,7 @@ class _AcceptOrderScreenState extends State<AcceptOrderScreen> {
 
     try {
       // Get auth token
-      final authToken = await AuthService.getAuthToken();
+      final authToken = await AuthService.getToken();
 
       if (authToken == null) {
         throw Exception("Not authenticated");
@@ -62,7 +62,9 @@ class _AcceptOrderScreenState extends State<AcceptOrderScreen> {
 
       // Filter for matching bookings only
       final matchingBookings = (bookingsData is List)
-          ? bookingsData.where((booking) => booking['status'] == 'matching').toList()
+          ? bookingsData
+              .where((booking) => booking['status'] == 'matching')
+              .toList()
           : [];
 
       setState(() {
@@ -86,7 +88,7 @@ class _AcceptOrderScreenState extends State<AcceptOrderScreen> {
     });
 
     try {
-      final authToken = await AuthService.getAuthToken();
+      final authToken = await AuthService.getToken();
 
       if (authToken == null) {
         throw Exception("Not authenticated");
@@ -136,7 +138,7 @@ class _AcceptOrderScreenState extends State<AcceptOrderScreen> {
     });
 
     try {
-      final authToken = await AuthService.getAuthToken();
+      final authToken = await AuthService.getToken();
 
       if (authToken == null) {
         throw Exception("Not authenticated");
@@ -184,8 +186,18 @@ class _AcceptOrderScreenState extends State<AcceptOrderScreen> {
     try {
       final date = DateTime.parse(dateString);
       final months = [
-        'January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December'
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December'
       ];
       return "${date.day} ${months[date.month - 1]} ${date.year}";
     } catch (e) {
@@ -213,7 +225,8 @@ class _AcceptOrderScreenState extends State<AcceptOrderScreen> {
             children: [
               const Icon(Icons.error_outline, size: 48, color: Colors.red),
               CustomSpacers.height16,
-              Text('Error: $_error',
+              Text(
+                'Error: $_error',
                 style: const TextStyle(color: Colors.red),
                 textAlign: TextAlign.center,
               ),
@@ -343,7 +356,8 @@ class AcceptCardWidget extends StatelessWidget {
         serviceType = serviceDetails['name'] ?? 'Service';
       }
 
-      locationType = service['location_type'] == 'at_home' ? 'At Home' : 'At Salon';
+      locationType =
+          service['location_type'] == 'at_home' ? 'At Home' : 'At Salon';
     }
 
     // Get address
@@ -353,17 +367,21 @@ class AcceptCardWidget extends StatelessWidget {
     }
 
     // Get date and time
-    String date = booking['scheduledDate'] != null ? formatDate(booking['scheduledDate']) : '';
+    String date = booking['scheduledDate'] != null
+        ? formatDate(booking['scheduledDate'])
+        : '';
     String time = booking['scheduledTime'] ?? '';
 
     // Get distance info
     double? distanceKm;
-    if (booking['distance'] != null && booking['distance']['kilometers'] != null) {
+    if (booking['distance'] != null &&
+        booking['distance']['kilometers'] != null) {
       try {
         if (booking['distance']['kilometers'] is num) {
           distanceKm = (booking['distance']['kilometers'] as num).toDouble();
         } else {
-          distanceKm = double.tryParse(booking['distance']['kilometers'].toString());
+          distanceKm =
+              double.tryParse(booking['distance']['kilometers'].toString());
         }
       } catch (e) {
         print('Error parsing distance: $e');
@@ -380,7 +398,8 @@ class AcceptCardWidget extends StatelessWidget {
       }
     }
 
-    final bool isExactMatch = booking['distance'] != null && booking['distance']['exactMatch'] == true;
+    final bool isExactMatch = booking['distance'] != null &&
+        booking['distance']['exactMatch'] == true;
 
     return Card(
       elevation: 2,
@@ -422,12 +441,15 @@ class AcceptCardWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(String serviceType, String locationType, bool isExactMatch, bool isWithinRadius) {
+  Widget _buildHeader(String serviceType, String locationType,
+      bool isExactMatch, bool isWithinRadius) {
     return Container(
       decoration: BoxDecoration(
-        color: isExactMatch ? Colors.green.shade800 :
-        isWithinRadius ? Colors.green.shade600 :
-        Colors.black,
+        color: isExactMatch
+            ? Colors.green.shade800
+            : isWithinRadius
+                ? Colors.green.shade600
+                : Colors.black,
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(16),
           topRight: Radius.circular(16),
@@ -441,9 +463,7 @@ class AcceptCardWidget extends StatelessWidget {
             child: Text(
               serviceType,
               style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600
-              ),
+                  color: Colors.white, fontWeight: FontWeight.w600),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -455,8 +475,7 @@ class AcceptCardWidget extends StatelessWidget {
                   size: 16,
                   color: Colors.white70,
                 ),
-              if (isExactMatch || isWithinRadius)
-                const SizedBox(width: 4),
+              if (isExactMatch || isWithinRadius) const SizedBox(width: 4),
               Text(
                 locationType,
                 style: const TextStyle(color: Colors.white70),
@@ -483,12 +502,15 @@ class AcceptCardWidget extends StatelessWidget {
       child: Row(
         children: [
           CircleAvatar(
-            backgroundColor: isWithinRadius ? Colors.green.shade100 : Colors.blue.shade100,
+            backgroundColor:
+                isWithinRadius ? Colors.green.shade100 : Colors.blue.shade100,
             radius: 20,
             child: Text(
               customerName.isNotEmpty ? customerName[0].toUpperCase() : '?',
               style: TextStyle(
-                color: isWithinRadius ? Colors.green.shade800 : Colors.blue.shade800,
+                color: isWithinRadius
+                    ? Colors.green.shade800
+                    : Colors.blue.shade800,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -536,45 +558,58 @@ class AcceptCardWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildDistanceBadge(double distanceKm, bool isWithinRadius, bool isExactMatch) {
+  Widget _buildDistanceBadge(
+      double distanceKm, bool isWithinRadius, bool isExactMatch) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: isExactMatch ? Colors.green.shade100 :
-          isWithinRadius ? Colors.green.shade50 :
-          Colors.blue.shade50,
+          color: isExactMatch
+              ? Colors.green.shade100
+              : isWithinRadius
+                  ? Colors.green.shade50
+                  : Colors.blue.shade50,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isExactMatch ? Colors.green.shade300 :
-            isWithinRadius ? Colors.green.shade200 :
-            Colors.blue.shade200,
+            color: isExactMatch
+                ? Colors.green.shade300
+                : isWithinRadius
+                    ? Colors.green.shade200
+                    : Colors.blue.shade200,
           ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              isExactMatch ? Icons.check_circle :
-              isWithinRadius ? Icons.check_circle :
-              Icons.location_on,
+              isExactMatch
+                  ? Icons.check_circle
+                  : isWithinRadius
+                      ? Icons.check_circle
+                      : Icons.location_on,
               size: 16,
-              color: isExactMatch ? Colors.green.shade800 :
-              isWithinRadius ? Colors.green.shade700 :
-              Colors.blue.shade700,
+              color: isExactMatch
+                  ? Colors.green.shade800
+                  : isWithinRadius
+                      ? Colors.green.shade700
+                      : Colors.blue.shade700,
             ),
             CustomSpacers.width6,
             Text(
-              isExactMatch ? 'Exact match!' :
-              isWithinRadius ? 'Within Your Area' :
-              '${distanceKm.toStringAsFixed(1)} km away',
+              isExactMatch
+                  ? 'Exact match!'
+                  : isWithinRadius
+                      ? 'Within Your Area'
+                      : '${distanceKm.toStringAsFixed(1)} km away',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
-                color: isExactMatch ? Colors.green.shade800 :
-                isWithinRadius ? Colors.green.shade700 :
-                Colors.blue.shade700,
+                color: isExactMatch
+                    ? Colors.green.shade800
+                    : isWithinRadius
+                        ? Colors.green.shade700
+                        : Colors.blue.shade700,
               ),
             ),
           ],
