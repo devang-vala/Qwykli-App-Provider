@@ -17,23 +17,18 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _checkAuthAndNavigate();
+    _navigateAfterSplash();
   }
 
-  Future<void> _checkAuthAndNavigate() async {
-    // Keep the splash screen visible for at least 3 seconds
-    await Future.delayed(const Duration(seconds: 3));
-
-    // Check if user is already authenticated
-    final isAuthenticated = await AuthService.isAuthenticated();
-
+  void _navigateAfterSplash() async {
+    await Future.delayed(const Duration(seconds: 2));
+    final isValid = await AuthService.isTokenValid();
     if (mounted) {
-      if (isAuthenticated) {
-        // Navigate to home if authenticated
+      if (isValid) {
         CustomNavigator.pushReplace(context, AppPages.navbar);
       } else {
-        // Navigate to login if not authenticated
-        CustomNavigator.pushReplace(context, AppPages.login);
+        await AuthService.logout();
+        CustomNavigator.pushReplace(context, AppPages.phone_input);
       }
     }
   }
