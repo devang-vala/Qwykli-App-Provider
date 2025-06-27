@@ -6,20 +6,23 @@ class NetworkConfig {
   static const bool isProduction = bool.fromEnvironment('dart.vm.product');
 
   // Production base URL
-  static const String prodBaseUrl =
-      'https://local-services-backend-qwykli.onrender.com/api';
+  static const String prodBaseUrl = 'https://local-services-backend-qwykli.onrender.com/api';
 
   // Development base URL (auto-adjusts based on platform)
   static String getDevBaseUrl() {
     if (Platform.isAndroid) {
-      return 'http://192.168.77.217:8080/api';
+
+      return 'http://10.0.2.2:8080/api';
+
     }
 
     if (Platform.isIOS || kIsWeb) {
       return 'http://localhost:8080/api';
     }
 
-    return 'http://192.168.77.217:8080/api';
+
+    return 'http://localhost:8080/api';
+
   }
 
   /// Public base URL selector

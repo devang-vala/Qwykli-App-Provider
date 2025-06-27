@@ -5,7 +5,7 @@ import 'package:shortly_provider/core/app_imports.dart';
 import 'package:shortly_provider/core/utils/screen_utils.dart';
 import 'package:shortly_provider/route/app_pages.dart';
 import 'package:shortly_provider/route/custom_navigator.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:shortly_provider/l10n/app_localizations.dart';
 import 'package:http/http.dart' as http;
 import 'package:shortly_provider/core/network/network_config.dart';
 import 'package:shortly_provider/core/services/auth_service.dart';

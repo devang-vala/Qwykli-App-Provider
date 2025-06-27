@@ -26,7 +26,7 @@ class HomeScreen extends StatelessWidget {
 
 class HomeScreenBody extends StatelessWidget {
   const HomeScreenBody({super.key});
-  final int orderCount = 3;
+  final int orderCount = 0;
 
   @override
   Widget build(BuildContext context) {

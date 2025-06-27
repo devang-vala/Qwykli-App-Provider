@@ -114,7 +114,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Address'**
-  // String get address;
+  String get address;
 
   /// No description provided for @aadhar.
   ///
@@ -181,18 +181,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Forgot Password'**
   String get forgotpassword;
-
-  /// No description provided for @donthaveanaccount.
-  ///
-  /// In en, this message translates to:
-  /// **'Don\'t have an account ?'**
-  String get donthaveanaccount;
-
-  /// No description provided for @signup.
-  ///
-  /// In en, this message translates to:
-  /// **'Signup'**
-  String get signup;
 
   /// No description provided for @openorder.
   ///

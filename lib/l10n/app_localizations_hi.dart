@@ -51,12 +51,6 @@ class AppLocalizationsHi extends AppLocalizations {
   String get forgotpassword => 'पासवर्ड भूल गए';
 
   @override
-  String get donthaveanaccount => 'आपके पास खाता नहीं है?';
-
-  @override
-  String get signup => 'साइन अप करें';
-
-  @override
   String get openorder => 'ऑर्डर खोलें';
 
   @override
