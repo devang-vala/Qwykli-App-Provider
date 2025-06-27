@@ -57,13 +57,52 @@ class _ServiceAreaPageState extends State<ServiceAreaPage> {
               areaName = p.description?.split(',')[0] ?? 'Unnamed Area';
             }
             if (loc != null) {
-              provider.setServiceAreas([
-                ...provider.serviceAreas,
-                ServiceArea(
-                    name: areaName, city: city, coordinates: [loc.lng, loc.lat])
-              ]);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Added service area: $areaName")),
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text('Edit Area'),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextFormField(
+                        initialValue: areaName,
+                        decoration: InputDecoration(labelText: 'Area Name'),
+                        onChanged: (val) {
+                          areaName = val;
+                        },
+                      ),
+                      TextFormField(
+                        initialValue: city,
+                        decoration: InputDecoration(labelText: 'City'),
+                        readOnly: true,
+                      ),
+                    ],
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        final newAreas =
+                            List<ServiceArea>.from(provider.serviceAreas);
+                        newAreas.add(ServiceArea(
+                          name: areaName,
+                          city: city,
+                          coordinates: [loc.lng, loc.lat],
+                        ));
+                        provider.setServiceAreas(newAreas);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text("Added service area: $areaName")),
+                        );
+                        Navigator.pop(context);
+                      },
+                      child: Text('Add'),
+                    ),
+                  ],
+                ),
               );
             } else {
               ScaffoldMessenger.of(context).showSnackBar(

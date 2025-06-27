@@ -6,6 +6,8 @@ import 'package:shortly_provider/core/utils/screen_utils.dart';
 import 'package:shortly_provider/features/auth/data/signup_provider.dart';
 import 'package:shortly_provider/route/custom_navigator.dart';
 import 'package:shortly_provider/l10n/app_localizations.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
+import 'package:google_maps_webservice/places.dart';
 
 class WorkingAreaScreen extends StatefulWidget {
   const WorkingAreaScreen({super.key});
@@ -45,71 +47,121 @@ class _WorkingAreaScreenState extends State<WorkingAreaScreen> {
   }
 
   Future<void> _addServiceArea() async {
-    String areaName = '';
-    String city = '';
-    String lng = '';
-    String lat = '';
-    await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add Service Area'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              decoration: const InputDecoration(labelText: 'Area Name'),
-              onChanged: (v) => areaName = v,
-            ),
-            TextField(
-              decoration: const InputDecoration(labelText: 'City'),
-              onChanged: (v) => city = v,
-            ),
-            TextField(
-              decoration: const InputDecoration(labelText: 'Longitude'),
-              keyboardType: TextInputType.number,
-              onChanged: (v) => lng = v,
-            ),
-            TextField(
-              decoration: const InputDecoration(labelText: 'Latitude'),
-              keyboardType: TextInputType.number,
-              onChanged: (v) => lat = v,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (areaName.isEmpty ||
-                  city.isEmpty ||
-                  lng.isEmpty ||
-                  lat.isEmpty) return;
-              try {
-                await ProfileService.addProviderServiceArea({
-                  'areaName': areaName,
-                  'city': city,
-                  'coordinates': [
-                    double.tryParse(lng) ?? 0,
-                    double.tryParse(lat) ?? 0
-                  ],
-                });
-                Navigator.pop(context);
-                _fetchServiceAreas();
-              } catch (e) {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Failed to add area: $e')),
-                );
+    try {
+      Prediction? p = await PlacesAutocomplete.show(
+        context: context,
+        apiKey: kGoogleApiKey,
+        mode: Mode.overlay,
+        language: "en",
+        components: [Component(Component.country, "in")],
+        types: [],
+        strictbounds: false,
+        radius: 10000,
+        onError: (PlacesAutocompleteResponse response) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Error: ${response.errorMessage}")),
+          );
+        },
+      );
+
+      if (p != null) {
+        final places = GoogleMapsPlaces(apiKey: kGoogleApiKey);
+        try {
+          final detail = await places.getDetailsByPlaceId(p.placeId!);
+          if (detail.status == "OK") {
+            final loc = detail.result.geometry?.location;
+            String areaName = '';
+            String city = 'Delhi';
+            for (var comp in detail.result.addressComponents) {
+              if (comp.types.contains('sublocality_level_1') ||
+                  comp.types.contains('sublocality') ||
+                  comp.types.contains('neighborhood')) {
+                areaName = comp.longName;
               }
-            },
-            child: const Text('Add'),
-          ),
-        ],
-      ),
-    );
+              if (comp.types.contains('locality') ||
+                  comp.types.contains('administrative_area_level_2')) {
+                city = comp.longName;
+              }
+            }
+            if (areaName.isEmpty) {
+              areaName = p.description?.split(',')[0] ?? 'Unnamed Area';
+            }
+            if (loc != null) {
+              // Show dialog to edit area name before saving
+              String editedAreaName = areaName;
+              await showDialog(
+                context: context,
+                builder: (context) {
+                  final areaNameController =
+                      TextEditingController(text: areaName);
+                  return AlertDialog(
+                    title: const Text('Confirm Service Area'),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextField(
+                          controller: areaNameController,
+                          decoration:
+                              const InputDecoration(labelText: 'Area Name'),
+                        ),
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: TextEditingController(text: city),
+                          decoration: const InputDecoration(labelText: 'City'),
+                          enabled: false,
+                        ),
+                      ],
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Cancel'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          editedAreaName = areaNameController.text.trim();
+                          if (editedAreaName.isEmpty) return;
+                          await ProfileService.addProviderServiceArea({
+                            'areaName': editedAreaName,
+                            'city': city,
+                            'coordinates': [loc.lng, loc.lat],
+                          });
+                          Navigator.pop(context);
+                          _fetchServiceAreas();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text(
+                                    "Added service area: $editedAreaName")),
+                          );
+                        },
+                        child: const Text('Save'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                    content: Text("Could not get location for selected place")),
+              );
+            }
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("API Error: ${detail.status}")),
+            );
+          }
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Error getting place details: $e")),
+          );
+        }
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+    }
   }
 
   Future<void> _removeServiceArea(String areaId) async {
@@ -180,3 +232,5 @@ class _WorkingAreaScreenState extends State<WorkingAreaScreen> {
     );
   }
 }
+
+const String kGoogleApiKey = "AIzaSyAlcxv4LvUepfvQWilRGizpaGAcEb4uG9g";

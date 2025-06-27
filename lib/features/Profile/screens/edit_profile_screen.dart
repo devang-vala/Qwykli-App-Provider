@@ -1,3 +1,7 @@
+//we don't need to show edit profile to provider 
+//their name and email should be fixed from registration 
+//.....-jt
+
 // ================= CLEANED EDIT PROFILE SCREEN ====================
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +20,7 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
   bool isLoading = true;
   String? error;
   String? photoUrl;
@@ -34,7 +39,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     try {
       final data = await ProfileService.getProfile();
       nameController.text = data['name'] ?? '';
+      emailController.text = data['email'] ?? '';
       photoUrl = data['photo'];
+      // Set userId in provider after loading profile
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final provider =
+            Provider.of<EditProfileProvider>(context, listen: false);
+        provider.setUserId(data['_id']?.toString());
+      });
       setState(() {
         isLoading = false;
       });
@@ -52,19 +64,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       provider.setNameError('Name is required');
       return;
     }
-    provider.setSaving(true);
+    if (emailController.text.isNotEmpty &&
+        !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(emailController.text.trim())) {
+      provider.setEmailError('Please enter a valid email');
+      return;
+    }
     try {
-      await ProfileService.updateProfile({
-        'name': nameController.text.trim(),
-        // Add photo upload logic if needed
-      });
-      provider.setSaving(false);
+      await provider.saveProfile(
+          nameController.text.trim(), emailController.text.trim());
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Profile updated successfully!")),
       );
       Navigator.pop(context);
     } catch (e) {
-      provider.setSaving(false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Failed to update profile: $e")),
       );
@@ -80,7 +92,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       return Scaffold(body: Center(child: Text('Error: ' + error!)));
     }
     return ChangeNotifierProvider(
-      create: (_) => EditProfileProvider(),
+      create: (_) =>
+          EditProfileProvider()..emailController.text = emailController.text,
       child: Consumer<EditProfileProvider>(
         builder: (context, provider, _) => Scaffold(
           appBar: AppBar(
@@ -96,19 +109,36 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Center(
-                  child: GestureDetector(
-                    onTap: provider.pickImage,
-                    child: CircleAvatar(
-                      radius: 50,
-                      backgroundImage: provider.profileImage != null
-                          ? FileImage(provider.profileImage!)
-                          : (photoUrl != null ? NetworkImage(photoUrl!) : null)
-                              as ImageProvider?,
-                      child: provider.profileImage == null &&
-                              (photoUrl == null || photoUrl!.isEmpty)
-                          ? const Icon(Icons.camera_alt, size: 30)
-                          : null,
-                    ),
+                  child: Stack(
+                    alignment: Alignment.bottomRight,
+                    children: [
+                      GestureDetector(
+                        onTap: provider.pickImage,
+                        child: CircleAvatar(
+                          radius: 50,
+                          backgroundImage: provider.profileImage != null
+                              ? FileImage(provider.profileImage!)
+                              : (photoUrl != null && photoUrl!.isNotEmpty
+                                  ? NetworkImage(photoUrl!)
+                                  : null) as ImageProvider?,
+                          child: provider.profileImage == null &&
+                                  (photoUrl == null || photoUrl!.isEmpty)
+                              ? const Icon(Icons.camera_alt, size: 30)
+                              : null,
+                        ),
+                      ),
+                      if (provider.profileImage != null ||
+                          (photoUrl != null && photoUrl!.isNotEmpty))
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: provider.removePhoto,
+                            tooltip: 'Remove Photo',
+                          ),
+                        ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 30),
@@ -118,6 +148,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   keyboardType: TextInputType.name,
                   errorText: provider.nameError,
                   onChanged: provider.clearNameError,
+                ),
+                const SizedBox(height: 20),
+                _buildTextField(
+                  label: "Email",
+                  controller: provider.emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  errorText: provider.emailError,
+                  onChanged: provider.clearEmailError,
                 ),
                 const SizedBox(height: 30),
                 Center(

@@ -13,7 +13,9 @@ import 'package:shortly_provider/core/services/auth_service.dart';
 
 class OtpVerificationPage extends StatefulWidget {
   final String phoneNumber;
-  const OtpVerificationPage({super.key, required this.phoneNumber});
+  final bool isLogin;
+  const OtpVerificationPage(
+      {super.key, required this.phoneNumber, this.isLogin = false});
 
   @override
   State<OtpVerificationPage> createState() => _OtpVerificationPageState();
@@ -132,13 +134,36 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
           child: ElevatedButton(
             onPressed: otpCode.length == 6
                 ? () async {
-                    final result = await AuthService.verifyProviderLoginOTP(
-                        widget.phoneNumber, otpCode);
-                    if (result['success'] == true) {
-                      CustomNavigator.pushReplace(context, AppPages.navbar);
+                    Map<String, dynamic> result;
+                    if (widget.isLogin) {
+                      result = await AuthService.verifyProviderLoginOTP(
+                          widget.phoneNumber, otpCode);
+                      if (result['success'] == true) {
+                        CustomNavigator.pushReplace(context, AppPages.navbar);
+                      } else {
+                        _showErrorDialog(
+                            result['message'] ?? 'OTP verification failed');
+                      }
                     } else {
-                      _showErrorDialog(
-                          result['message'] ?? 'OTP verification failed');
+                      result = await AuthService.verifyProviderOTP(
+                          widget.phoneNumber, otpCode);
+                      if (result['success'] == true) {
+                        // If verified is true and userId is present, it's a new registration
+                        if (result['verified'] == true) {
+                          CustomNavigator.pushReplace(
+                            context,
+                            AppPages.signup,
+                            arguments: {"phoneNumber": widget.phoneNumber},
+                          );
+                        } else {
+                          // If not, show a message or handle as needed
+                          _showErrorDialog(result['message'] ??
+                              'OTP verification failed or already registered.');
+                        }
+                      } else {
+                        _showErrorDialog(
+                            result['message'] ?? 'OTP verification failed');
+                      }
                     }
                   }
                 : null,
