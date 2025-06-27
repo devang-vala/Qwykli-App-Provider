@@ -30,6 +30,53 @@ Future<http.MultipartFile> fileToMultipart(String field, File file) async {
   );
 }
 
+// ProviderData model for user data (from chk.dart)
+class ProviderData {
+  final String id;
+  final String name;
+  final String email;
+  final String phone;
+  final String? photo;
+  final bool isProvider;
+  final bool? isVerified;
+  final String token;
+
+  ProviderData({
+    required this.id,
+    required this.name,
+    required this.email,
+    required this.phone,
+    this.photo,
+    required this.isProvider,
+    this.isVerified,
+    required this.token,
+  });
+
+  Map<String, dynamic> toJson() => {
+        '_id': id,
+        'name': name,
+        'email': email,
+        'phone': phone,
+        'photo': photo,
+        'isProvider': isProvider,
+        'isVerified': isVerified,
+        'token': token,
+      };
+
+  factory ProviderData.fromJson(Map<String, dynamic> json, String token) {
+    return ProviderData(
+      id: json['_id'] ?? '',
+      name: json['name'] ?? '',
+      email: json['email'] ?? '',
+      phone: json['phone'] ?? '',
+      photo: json['photo'],
+      isProvider: json['isProvider'] ?? true,
+      isVerified: json['isVerified'],
+      token: token,
+    );
+  }
+}
+
 class AuthService {
   static final FlutterSecureStorage _secureStorage =
       const FlutterSecureStorage();
@@ -190,6 +237,17 @@ class AuthService {
         final data = jsonDecode(response.body);
         if (data['token'] != null) {
           await saveToken(data['token']);
+          // Save user data if present
+          final userData = {
+            '_id': data['_id'] ?? '',
+            'name': data['name'] ?? '',
+            'phone': data['phone'] ?? '',
+            'email': data['email'] ?? '',
+            'photo': data['photo'] ?? '',
+            'isProvider': true,
+            'isVerified': data['isVerified'] ?? false,
+          };
+          await saveUserData(userData);
         }
         return data;
       } catch (_) {
@@ -218,6 +276,7 @@ class AuthService {
 
   static Future<void> logout() async {
     await _secureStorage.delete(key: 'auth_token');
+    await _secureStorage.delete(key: 'user_data');
   }
 
   static Future<bool> isTokenValid() async {
@@ -236,6 +295,25 @@ class AuthService {
       return DateTime.now().isBefore(expiry);
     } catch (e) {
       return false;
+    }
+  }
+
+  // Save user data to secure storage
+  static Future<void> saveUserData(Map<String, dynamic> userData) async {
+    await _secureStorage.write(key: 'user_data', value: jsonEncode(userData));
+  }
+
+  // Get user data from secure storage
+  static Future<ProviderData?> getUserData() async {
+    final token = await getToken();
+    final userDataStr = await _secureStorage.read(key: 'user_data');
+    if (token == null || userDataStr == null) return null;
+    try {
+      final userData = jsonDecode(userDataStr) as Map<String, dynamic>;
+      if (!(userData['isProvider'] ?? false)) return null;
+      return ProviderData.fromJson(userData, token);
+    } catch (e) {
+      return null;
     }
   }
 }
