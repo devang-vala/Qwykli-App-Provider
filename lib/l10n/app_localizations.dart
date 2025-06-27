@@ -114,7 +114,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Address'**
-  String get address;
+  // String get address;
 
   /// No description provided for @aadhar.
   ///

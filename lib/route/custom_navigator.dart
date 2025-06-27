@@ -4,10 +4,8 @@ import 'package:shortly_provider/features/auth/screens/login_screen.dart';
 import 'package:shortly_provider/features/auth/screens/otp_verification_screen.dart';
 import 'package:shortly_provider/features/Onboarding/screens/price_sheet.dart';
 import 'package:shortly_provider/features/Onboarding/screens/splash_screen.dart';
-import 'package:shortly_provider/features/Profile/screens/bank_details_screen.dart';
 import 'package:shortly_provider/features/Profile/screens/add_services_screen.dart';
 import 'package:shortly_provider/features/Profile/screens/edit_profile_screen.dart';
-import 'package:shortly_provider/features/Profile/screens/worker_list_screen.dart';
 import 'package:shortly_provider/features/Profile/screens/working_area_screen.dart';
 import 'package:shortly_provider/features/Service%20History/screens/history_order_details_screen.dart';
 import 'package:shortly_provider/features/auth/screens/signup_flow.dart';
@@ -72,21 +70,9 @@ class CustomNavigator {
           settings: settings,
         );
 
-      case AppPages.workerlistscreen:
-        return MaterialPageRoute(
-          builder: (context) => WorkerListScreen(),
-          settings: settings,
-        );
-
       case AppPages.workingareascreen:
         return MaterialPageRoute(
           builder: (context) => WorkingAreaScreen(),
-          settings: settings,
-        );
-
-      case AppPages.bankdetailsscreen:
-        return MaterialPageRoute(
-          builder: (context) => BankDetailsScreen(),
           settings: settings,
         );
 

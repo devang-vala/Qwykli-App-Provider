@@ -17,9 +17,7 @@ class AppPages {
   static const String priceselcetionscreen = '/priceselectionscreen';
   static const String addservicescreen = '/addservicescreen';
   static const String editprofilescreen = '/editprofilescreen';
-  static const String workerlistscreen = '/workerlistscreen';
   static const String workingareascreen = '/workingareascreen';
-  static const String bankdetailsscreen = '/bankdetailsscreen';
 
   static const String registrationSuccess = '/registration-success';
 }
