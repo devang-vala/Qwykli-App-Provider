@@ -186,7 +186,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     });
 
     try {
-      final authToken = await AuthService.getAuthToken();
+      final authToken = await AuthService.getToken();
       if (authToken == null) {
         throw Exception('Not authenticated');
       }
