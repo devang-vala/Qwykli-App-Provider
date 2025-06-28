@@ -20,9 +20,12 @@ class ProviderRegistrationProvider extends ChangeNotifier {
   String password = '';
   String confirmPassword = '';
   bool hasSalon = false;
+  String salonName = '';
   String salonAddress = '';
   String salonCompleteAddress = '';
   List<double>? salonLocation; // [lng, lat]
+  bool provideServicesAtHome =
+      true; // Default to true since most providers offer at home
   List<String> categories = [];
   Map<String, List<String>> selectedSubcategories = {};
   List<ServiceArea> serviceAreas = [];
@@ -81,6 +84,11 @@ class ProviderRegistrationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setSalonName(String value) {
+    salonName = value;
+    notifyListeners();
+  }
+
   void setSalonAddress(String value) {
     salonAddress = value;
     notifyListeners();
@@ -93,6 +101,11 @@ class ProviderRegistrationProvider extends ChangeNotifier {
 
   void setSalonLocation(List<double>? value) {
     salonLocation = value;
+    notifyListeners();
+  }
+
+  void setProvideServicesAtHome(bool value) {
+    provideServicesAtHome = value;
     notifyListeners();
   }
 
@@ -135,9 +148,11 @@ class ProviderRegistrationProvider extends ChangeNotifier {
     password = '';
     confirmPassword = '';
     hasSalon = false;
+    salonName = '';
     salonAddress = '';
     salonLocation = null;
     salonCompleteAddress = '';
+    provideServicesAtHome = true;
     categories = [];
     selectedSubcategories = {};
     serviceAreas = [];

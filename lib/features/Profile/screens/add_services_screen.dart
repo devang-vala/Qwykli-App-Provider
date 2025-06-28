@@ -1,292 +1,302 @@
-import 'package:shortly_provider/core/app_imports.dart';
-import 'package:shortly_provider/core/constants/app_data.dart';
-import 'package:shortly_provider/route/custom_navigator.dart';
-import 'package:shortly_provider/ui/widget/select_service_widegt.dart';
-import 'package:provider/provider.dart';
-import 'package:shortly_provider/features/auth/data/signup_provider.dart';
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shortly_provider/core/network/network_config.dart';
 import 'package:shortly_provider/core/services/profile_service.dart';
+import 'package:shortly_provider/route/custom_navigator.dart';
+import 'package:shortly_provider/route/app_pages.dart';
 
-class AddServiceScreen extends StatefulWidget {
-  const AddServiceScreen({super.key});
+class AddServicesScreen extends StatefulWidget {
+  const AddServicesScreen({Key? key}) : super(key: key);
 
   @override
-  State<AddServiceScreen> createState() => _AddServiceScreenState();
+  State<AddServicesScreen> createState() => _AddServicesScreenState();
 }
 
-class _AddServiceScreenState extends State<AddServiceScreen> {
-  List<dynamic> myServices = [];
+class _AddServicesScreenState extends State<AddServicesScreen> {
   bool isLoading = true;
   String? error;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchServices();
-  }
-
-  Future<void> _fetchServices() async {
-    setState(() {
-      isLoading = true;
-      error = null;
-    });
-    try {
-      final services = await ProfileService.getProviderServices();
-      setState(() {
-        myServices = services;
-      });
-    } catch (e) {
-      setState(() {
-        error = e.toString();
-      });
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-
-  Future<void> _removeService(String serviceId) async {
-    setState(() {
-      isLoading = true;
-    });
-    try {
-      await ProfileService.removeProviderService(serviceId);
-      await _fetchServices();
-    } catch (e) {
-      setState(() {
-        error = e.toString();
-      });
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-
-  void _showAddServiceDialog() async {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AddServiceDialog(
-          onServiceAdded: _fetchServices,
-          myServices: myServices,
-        );
-      },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 0, 63, 164),
-        automaticallyImplyLeading: false,
-        centerTitle: false,
-        leading: GestureDetector(
-            onTap: () {
-              CustomNavigator.pop(context);
-            },
-            child: Icon(
-              Icons.arrow_back,
-              color: Colors.white,
-            )),
-        title: Text(
-          "Add Services",
-          style: TextStyle(
-              fontSize: 24, color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: _showAddServiceDialog,
-          ),
-        ],
-      ),
-      body: isLoading
-          ? Center(child: CircularProgressIndicator())
-          : error != null
-              ? Center(child: Text(error!))
-              : myServices.isEmpty
-                  ? Center(child: Text('No services added yet.'))
-                  : ListView.builder(
-                      itemCount: myServices.length,
-                      itemBuilder: (context, index) {
-                        final service = myServices[index];
-                        final serviceData = service['service'];
-                        String serviceName;
-                        if (serviceData is Map &&
-                            serviceData.containsKey('name')) {
-                          serviceName = serviceData['name'] ?? 'Service';
-                        } else if (serviceData is String) {
-                          serviceName = serviceData;
-                        } else {
-                          // Debug print for unexpected type
-                          print(
-                              'Unexpected type for service[\'service\']: \\${serviceData.runtimeType}');
-                          serviceName = 'Service';
-                        }
-                        final price = service['price']?.toString() ?? '';
-                        final duration = service['duration']?.toString() ?? '';
-                        return ListTile(
-                          title: Text(serviceName),
-                          subtitle: Text('₹$price | $duration min'),
-                          trailing: IconButton(
-                            icon: Icon(Icons.delete, color: Colors.red),
-                            onPressed: () =>
-                                _removeService(service['_id'] ?? ''),
-                          ),
-                        );
-                      },
-                    ),
-    );
-  }
-}
-
-class AddServiceDialog extends StatefulWidget {
-  final VoidCallback onServiceAdded;
-  final List<dynamic> myServices;
-  const AddServiceDialog(
-      {Key? key, required this.onServiceAdded, required this.myServices})
-      : super(key: key);
-
-  @override
-  State<AddServiceDialog> createState() => _AddServiceDialogState();
-}
-
-class _AddServiceDialogState extends State<AddServiceDialog> {
-  List<dynamic> availableServices = [];
+  List<dynamic> categories = [];
+  List<dynamic> allServices = [];
+  List<dynamic> filteredServices = [];
+  List<dynamic> providerServices = [];
+  String? selectedCategoryId;
   String? selectedServiceId;
-  String price = '';
-  String duration = '';
-  bool isLoading = true;
-  String? error;
-  bool isSubmitting = false;
+  final TextEditingController priceController = TextEditingController();
+  final TextEditingController durationController = TextEditingController();
+  bool isAdding = false;
+  String? addError;
+  String? addSuccess;
 
   @override
   void initState() {
     super.initState();
-    _fetchAvailableServices();
+    _fetchData();
   }
 
-  Future<void> _fetchAvailableServices() async {
+  Future<void> _fetchData() async {
     setState(() {
       isLoading = true;
       error = null;
     });
     try {
-      final allServices = await ProfileService.getAllServices();
-      final myServiceIds = widget.myServices
-          .map((s) {
-            final serviceData = s['service'];
-            if (serviceData is Map && serviceData.containsKey('_id')) {
-              return serviceData['_id'];
-            } else if (serviceData is String) {
-              return serviceData;
-            } else {
-              print(
-                  'Unexpected type for s[\'service\'] in AddServiceDialog: \\${serviceData.runtimeType}');
-              return null;
-            }
-          })
-          .where((id) => id != null)
-          .toSet();
+      // Fetch categories - API returns a list directly
+      final catRes =
+          await http.get(Uri.parse('${NetworkConfig.baseUrl}/categories'));
+      if (catRes.statusCode != 200)
+        throw Exception('Failed to load categories');
+      final catData = jsonDecode(catRes.body);
+      categories = catData is List ? catData : [];
+
+      // Fetch all services - API returns a list directly
+      allServices = await ProfileService.getAllServices();
+
+      // Fetch provider's current services
+      providerServices = await ProfileService.getProviderServices();
+
       setState(() {
-        availableServices =
-            allServices.where((s) => !myServiceIds.contains(s['_id'])).toList();
+        isLoading = false;
+        filteredServices = allServices;
       });
     } catch (e) {
       setState(() {
         error = e.toString();
-      });
-    } finally {
-      setState(() {
         isLoading = false;
       });
     }
+  }
+
+  void _filterServicesByCategory(String? categoryId) {
+    setState(() {
+      selectedCategoryId = categoryId;
+      if (categoryId == null) {
+        filteredServices = allServices;
+      } else {
+        // Filter services by category ID - handle both string and object category formats
+        filteredServices = allServices.where((service) {
+          final serviceCategory = service['category'];
+          if (serviceCategory is Map) {
+            return serviceCategory['_id'] == categoryId;
+          } else if (serviceCategory is String) {
+            return serviceCategory == categoryId;
+          }
+          return false;
+        }).toList();
+      }
+      selectedServiceId = null;
+    });
+  }
+
+  bool _isServiceAlreadyAdded(String serviceId) {
+    // providerServices may have 'service' as an object or string
+    return providerServices.any((ps) {
+      final psService = ps['service'];
+      if (psService is Map) {
+        return psService['_id'] == serviceId;
+      } else if (psService is String) {
+        return psService == serviceId;
+      }
+      return false;
+    });
   }
 
   Future<void> _addService() async {
-    if (selectedServiceId == null || price.isEmpty || duration.isEmpty) return;
+    if (selectedServiceId == null ||
+        priceController.text.isEmpty ||
+        durationController.text.isEmpty) {
+      setState(() {
+        addError = 'Please select a service and enter price and duration.';
+        addSuccess = null;
+      });
+      return;
+    }
+    if (_isServiceAlreadyAdded(selectedServiceId!)) {
+      setState(() {
+        addError = 'You have already added this service.';
+        addSuccess = null;
+      });
+      return;
+    }
     setState(() {
-      isSubmitting = true;
-      error = null;
+      isAdding = true;
+      addError = null;
+      addSuccess = null;
     });
     try {
-      await ProfileService.addProviderService({
+      final price = double.tryParse(priceController.text);
+      final duration = int.tryParse(durationController.text);
+      if (price == null || duration == null)
+        throw Exception('Invalid price or duration');
+      final result = await ProfileService.addProviderService({
         'service': selectedServiceId,
-        'price': double.tryParse(price) ?? 0,
-        'duration': int.tryParse(duration) ?? 0,
+        'price': price,
+        'duration': duration,
       });
-      widget.onServiceAdded();
-      Navigator.of(context).pop();
+      // Refresh provider services after adding
+      providerServices = await ProfileService.getProviderServices();
+      setState(() {
+        addSuccess = 'Service added successfully!';
+        addError = null;
+        isAdding = false;
+      });
+      priceController.clear();
+      durationController.clear();
+      selectedServiceId = null;
+      // Optionally, pop or refresh
+      // CustomNavigator.pushReplace(context, AppPages.profileScreen);
     } catch (e) {
       setState(() {
-        error = e.toString();
-      });
-    } finally {
-      setState(() {
-        isSubmitting = false;
+        addError = e.toString();
+        addSuccess = null;
+        isAdding = false;
       });
     }
   }
 
+  Widget _buildProviderServicesList() {
+    if (providerServices.isEmpty) {
+      return const Text('You have not added any services yet.',
+          style: TextStyle(color: Colors.grey));
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Your Added Services:',
+            style: TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        ...providerServices.map((ps) {
+          final service = ps['service'] is Map ? ps['service'] : null;
+          final serviceName = service != null
+              ? (service['name'] ?? '')
+              : ps['service'].toString();
+          final price = ps['price'] ?? '-';
+          final duration = ps['duration'] ?? '-';
+          final isActive = ps['isActive'] == true;
+          return Card(
+            margin: const EdgeInsets.symmetric(vertical: 4),
+            child: ListTile(
+              leading: const Icon(Icons.check_circle, color: Colors.green),
+              title: Text(serviceName),
+              subtitle: Text('Price: $price, Duration: $duration min'),
+              trailing: isActive
+                  ? const Text('Active', style: TextStyle(color: Colors.green))
+                  : const Text('Inactive', style: TextStyle(color: Colors.red)),
+            ),
+          );
+        }).toList(),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+
+  @override
+  void dispose() {
+    priceController.dispose();
+    durationController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text('Add New Service'),
-      content: isLoading
-          ? SizedBox(
-              height: 100, child: Center(child: CircularProgressIndicator()))
-          : error != null
-              ? Text(error!)
-              : Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    DropdownButtonFormField<String>(
-                      value: selectedServiceId,
-                      items: availableServices
-                          .map((s) => DropdownMenuItem<String>(
-                                value: s['_id']?.toString() ?? '',
-                                child: Text(s['name'] ?? ''),
-                              ))
-                          .toList(),
-                      onChanged: (val) =>
-                          setState(() => selectedServiceId = val),
-                      decoration: InputDecoration(labelText: 'Service'),
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+    if (error != null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Add Service')),
+        body: Center(child: Text('Error: $error')),
+      );
+    }
+    return Scaffold(
+      appBar: AppBar(title: const Text('Add Service')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildProviderServicesList(),
+              const Text('Select Category',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              DropdownButton<String>(
+                isExpanded: true,
+                value: selectedCategoryId,
+                hint: const Text('Choose category'),
+                items: categories.map<DropdownMenuItem<String>>((cat) {
+                  return DropdownMenuItem<String>(
+                    value: cat['_id'],
+                    child: Text(cat['name'] ?? ''),
+                  );
+                }).toList(),
+                onChanged: (val) => _filterServicesByCategory(val),
+              ),
+              const SizedBox(height: 16),
+              const Text('Select Service',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              DropdownButton<String>(
+                isExpanded: true,
+                value: selectedServiceId,
+                hint: const Text('Choose service'),
+                items: filteredServices.map<DropdownMenuItem<String>>((srv) {
+                  final alreadyAdded = _isServiceAlreadyAdded(srv['_id']);
+                  return DropdownMenuItem<String>(
+                    value: alreadyAdded ? null : srv['_id'],
+                    enabled: !alreadyAdded,
+                    child: Row(
+                      children: [
+                        Text(srv['name'] ?? ''),
+                        if (alreadyAdded)
+                          const Padding(
+                            padding: EdgeInsets.only(left: 8.0),
+                            child: Icon(Icons.check,
+                                color: Colors.green, size: 16),
+                          ),
+                      ],
                     ),
-                    TextField(
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(labelText: 'Price (₹)'),
-                      onChanged: (val) => setState(() => price = val),
-                    ),
-                    TextField(
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(labelText: 'Duration (min)'),
-                      onChanged: (val) => setState(() => duration = val),
-                    ),
-                  ],
+                  );
+                }).toList(),
+                onChanged: (val) {
+                  setState(() {
+                    selectedServiceId = val;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: priceController,
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                decoration: const InputDecoration(labelText: 'Price'),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: durationController,
+                keyboardType: TextInputType.number,
+                decoration:
+                    const InputDecoration(labelText: 'Duration (minutes)'),
+              ),
+              const SizedBox(height: 24),
+              if (addError != null)
+                Text(addError!, style: const TextStyle(color: Colors.red)),
+              if (addSuccess != null)
+                Text(addSuccess!, style: const TextStyle(color: Colors.green)),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: isAdding ? null : _addService,
+                  child: isAdding
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2))
+                      : const Text('Add Service'),
                 ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text('Cancel'),
+              ),
+            ],
+          ),
         ),
-        ElevatedButton(
-          onPressed: isSubmitting ||
-                  selectedServiceId == null ||
-                  price.isEmpty ||
-                  duration.isEmpty
-              ? null
-              : _addService,
-          child: isSubmitting
-              ? SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                      strokeWidth: 2, color: Colors.white))
-              : Text('Add'),
-        ),
-      ],
+      ),
     );
   }
 }

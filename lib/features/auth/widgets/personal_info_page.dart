@@ -219,6 +219,21 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                   onChanged: provider.setHasSalon,
                 ),
                 if (provider.hasSalon) ...[
+                  TextFormField(
+                    initialValue: provider.salonName,
+                    onChanged: provider.setSalonName,
+                    decoration: InputDecoration(
+                      labelText: 'Salon Name',
+                      hintText: 'Enter your salon name',
+                    ),
+                    validator: (v) {
+                      if (provider.hasSalon && (v == null || v.isEmpty)) {
+                        return 'Salon name is required';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 12),
                   GestureDetector(
                     onTap: () => _handlePressButton(context, provider),
                     child: AbsorbPointer(
@@ -233,6 +248,11 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                     ),
                   ),
                   SizedBox(height: 12),
+                  SwitchListTile(
+                    title: Text('Also provide services at customer\'s home'),
+                    value: provider.provideServicesAtHome,
+                    onChanged: provider.setProvideServicesAtHome,
+                  ),
                   const Text(
                     'Place dart on your salon location in map:',
                     style: TextStyle(

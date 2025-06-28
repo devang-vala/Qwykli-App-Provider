@@ -94,7 +94,7 @@ class CustomNavigator {
 
       case AppPages.addservicescreen:
         return MaterialPageRoute(
-          builder: (context) => AddServiceScreen(),
+          builder: (context) => AddServicesScreen(),
           settings: settings,
         );
 

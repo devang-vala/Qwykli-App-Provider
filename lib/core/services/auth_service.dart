@@ -147,22 +147,65 @@ class AuthService {
     request.fields['email'] = provider.email;
     request.fields['password'] = provider.password;
     request.fields['has_salon'] = provider.hasSalon.toString();
-    request.fields['salon_address'] = provider.salonAddress;
-    if (provider.salonLocation != null) {
-      request.fields['salon_location'] = jsonEncode(provider.salonLocation);
+    request.fields['provide_services_at_home'] =
+        provider.provideServicesAtHome.toString();
+
+    // Add salon details if applicable
+    if (provider.hasSalon) {
+      request.fields['salon_name'] = provider.salonName;
+      request.fields['salon_address'] = provider.salonAddress;
+      if (provider.salonLocation != null) {
+        request.fields['salon_location'] = jsonEncode(provider.salonLocation);
+      }
     }
+
     for (final cat in provider.categories) {
       request.fields['categories'] = cat;
     }
     request.fields['subcategories'] =
         jsonEncode(provider.selectedSubcategories);
-    request.fields['service_areas'] = jsonEncode(provider.serviceAreas
-        .map((a) => {
-              'name': a.name,
-              'city': a.city,
-              'coordinates': a.coordinates,
-            })
-        .toList());
+
+    // Handle service areas based on salon-only logic
+    bool shouldSendServiceAreas = true;
+
+    // Check if only one category is selected and it's Salon
+    if (provider.categories.length == 1 &&
+        provider.hasSalon &&
+        !provider.provideServicesAtHome) {
+      try {
+        // Fetch the category to check if it's Salon
+        final categoryUrl =
+            '${NetworkConfig.baseUrl}/categories/${provider.categories[0]}';
+        final categoryResponse = await http.get(Uri.parse(categoryUrl));
+
+        if (categoryResponse.statusCode == 200) {
+          final category = jsonDecode(categoryResponse.body);
+          final isSalonCategory =
+              category['name'].toString().toLowerCase() == 'salon';
+
+          if (isSalonCategory) {
+            // Salon category, don't send service areas
+            shouldSendServiceAreas = false;
+          }
+        }
+      } catch (error) {
+        // If error fetching category, send service areas to be safe
+        shouldSendServiceAreas = true;
+      }
+    }
+
+    if (shouldSendServiceAreas) {
+      request.fields['service_areas'] = jsonEncode(provider.serviceAreas
+          .map((a) => {
+                'name': a.name,
+                'city': a.city,
+                'coordinates': a.coordinates,
+              })
+          .toList());
+    } else {
+      // For salon-only providers, send empty array
+      request.fields['service_areas'] = jsonEncode([]);
+    }
 
     // Add files
     if (provider.photo != null) {
