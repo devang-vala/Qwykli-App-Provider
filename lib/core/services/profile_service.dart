@@ -85,6 +85,12 @@ class ProfileService {
 
   static Future<List<dynamic>> getProviderServices() async {
     final token = await _getToken();
+
+    // Check if token exists
+    if (token == null || token.isEmpty) {
+      throw Exception('No authentication token found. Please login again.');
+    }
+
     final url = '${NetworkConfig.baseUrl}/providers/services';
     final response = await http.get(
       Uri.parse(url),
@@ -93,17 +99,33 @@ class ProfileService {
         'Content-Type': 'application/json',
       },
     );
+
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      return data['services'] ?? [];
+      // API returns a list directly, not a map with 'services' key
+      return data is List ? data : [];
+    } else if (response.statusCode == 401) {
+      // Handle authentication errors specifically
+      final errorData = jsonDecode(response.body);
+      throw Exception(
+          'Authentication failed: ${errorData['message'] ?? 'Please login again'}');
     } else {
-      throw Exception('Failed to load services');
+      // Handle other errors
+      final errorData = jsonDecode(response.body);
+      throw Exception(
+          'Failed to load services: ${errorData['message'] ?? 'Unknown error'}');
     }
   }
 
   static Future<Map<String, dynamic>> addProviderService(
       Map<String, dynamic> serviceData) async {
     final token = await _getToken();
+
+    // Check if token exists
+    if (token == null || token.isEmpty) {
+      throw Exception('No authentication token found. Please login again.');
+    }
+
     final url = '${NetworkConfig.baseUrl}/providers/services';
     final response = await http.post(
       Uri.parse(url),
@@ -113,10 +135,19 @@ class ProfileService {
       },
       body: jsonEncode(serviceData),
     );
+
     if (response.statusCode == 200 || response.statusCode == 201) {
       return jsonDecode(response.body);
+    } else if (response.statusCode == 401) {
+      // Handle authentication errors specifically
+      final errorData = jsonDecode(response.body);
+      throw Exception(
+          'Authentication failed: ${errorData['message'] ?? 'Please login again'}');
     } else {
-      throw Exception('Failed to add service');
+      // Handle other errors
+      final errorData = jsonDecode(response.body);
+      throw Exception(
+          'Failed to add service: ${errorData['message'] ?? 'Unknown error'}');
     }
   }
 
@@ -205,7 +236,7 @@ class ProfileService {
     );
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      return data is List ? data : (data['services'] ?? []);
+      return data is List ? data : [];
     } else {
       throw Exception('Failed to load available services');
     }

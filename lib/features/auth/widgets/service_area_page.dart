@@ -4,6 +4,9 @@ import '../data/auth_provider.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'document_page.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:shortly_provider/core/network/network_config.dart';
 
 const String kGoogleApiKey = "AIzaSyAlcxv4LvUepfvQWilRGizpaGAcEb4uG9g";
 
@@ -14,6 +17,56 @@ class ServiceAreaPage extends StatefulWidget {
 
 class _ServiceAreaPageState extends State<ServiceAreaPage> {
   final _formKey = GlobalKey<FormState>();
+  bool isSalonOnly = false;
+  bool loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    checkSalonCategory();
+  }
+
+  Future<void> checkSalonCategory() async {
+    final provider =
+        Provider.of<ProviderRegistrationProvider>(context, listen: false);
+
+    // Check if only one category is selected and it's Salon
+    if (provider.categories.length == 1 &&
+        provider.hasSalon &&
+        !provider.provideServicesAtHome) {
+      try {
+        // Fetch the category to check if it's Salon
+        final url =
+            '${NetworkConfig.baseUrl}/categories/${provider.categories[0]}';
+        final response = await http.get(Uri.parse(url));
+
+        if (response.statusCode == 200) {
+          final category = jsonDecode(response.body);
+          final isSalonCategory =
+              category['name'].toString().toLowerCase() == 'salon';
+          setState(() {
+            isSalonOnly = isSalonCategory;
+            loading = false;
+          });
+        } else {
+          setState(() {
+            isSalonOnly = false;
+            loading = false;
+          });
+        }
+      } catch (error) {
+        setState(() {
+          isSalonOnly = false;
+          loading = false;
+        });
+      }
+    } else {
+      setState(() {
+        isSalonOnly = false;
+        loading = false;
+      });
+    }
+  }
 
   Future<void> _handleAddArea(
       BuildContext context, ProviderRegistrationProvider provider) async {
@@ -129,7 +182,18 @@ class _ServiceAreaPageState extends State<ServiceAreaPage> {
   }
 
   void _onNext(BuildContext context, ProviderRegistrationProvider provider) {
-    if (provider.serviceAreas.isNotEmpty) {
+    // If salon-only provider, skip service areas validation
+    if (isSalonOnly) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ChangeNotifierProvider.value(
+            value: provider,
+            child: DocumentPage(),
+          ),
+        ),
+      );
+    } else if (provider.serviceAreas.isNotEmpty) {
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -153,6 +217,95 @@ class _ServiceAreaPageState extends State<ServiceAreaPage> {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<ProviderRegistrationProvider>(context);
+
+    // Show loading while checking category
+    if (loading) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Service Areas'),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () => _onBack(context),
+          ),
+        ),
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    // If provider only provides services at salon, show info message
+    if (isSalonOnly) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Service Areas'),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () => _onBack(context),
+          ),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () => _onBack(context),
+                    icon: Icon(Icons.arrow_back),
+                    label: Text('Back'),
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: () => _onNext(context, provider),
+                    icon: Icon(Icons.arrow_forward),
+                    label: Text('Next'),
+                  ),
+                ],
+              ),
+              SizedBox(height: 24),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.info_outline, color: Colors.blue),
+                          SizedBox(width: 8),
+                          Text(
+                            'Salon-Only Service',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 12),
+                      Text(
+                        'Since you only provide services at your salon location, you don\'t need to select service areas.',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        'Customers will come to your salon location for services.',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
