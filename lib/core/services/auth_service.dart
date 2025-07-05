@@ -5,6 +5,8 @@ import 'package:shortly_provider/core/network/network_config.dart';
 import '../../features/auth/data/auth_provider.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shortly_provider/core/services/firebase_messaging_service.dart';
+import 'package:flutter/foundation.dart';
 
 String? getMimeType(String path) {
   final ext = path.split('.').last.toLowerCase();
@@ -280,6 +282,7 @@ class AuthService {
         final data = jsonDecode(response.body);
         if (data['token'] != null) {
           await saveToken(data['token']);
+          debugPrint('🔑 Auth token saved: \\${data['token']}');
           // Save user data if present
           final userData = {
             '_id': data['_id'] ?? '',
@@ -290,7 +293,10 @@ class AuthService {
             'isProvider': true,
             'isVerified': data['isVerified'] ?? false,
           };
+          debugPrint('🔑 Saving userData: \\${userData.toString()}');
           await saveUserData(userData);
+          debugPrint('🔑 Registering FCM token after login');
+          await FirebaseMessagingService().registerTokenWithServer();
         }
         return data;
       } catch (_) {
@@ -358,5 +364,10 @@ class AuthService {
     } catch (e) {
       return null;
     }
+  }
+
+  static Future<void> registerFCMToken() async {
+    final fcmService = FirebaseMessagingService();
+    await fcmService.registerTokenWithServer();
   }
 }

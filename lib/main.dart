@@ -15,12 +15,22 @@ import 'package:shortly_provider/route/custom_navigator.dart';
 import 'package:shortly_provider/l10n/app_localizations.dart';
 import 'core/loaded_widget.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:shortly_provider/core/services/firebase_messaging_handler.dart';
 
 String lang = "";
 Position? currentPosition;
 String currentAddress = "Fetching location...";
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase
+  await Firebase.initializeApp();
+
+  // Set up background message handler
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
   await AppManager.initialize();
   runApp(const MyApp());
 }
@@ -35,7 +45,7 @@ class MyApp extends StatelessWidget {
           create: (_) => LanguageChangeProvider(),
         ),
         ChangeNotifierProvider(create: (_) => OrderDetailsProvider()),
-        ChangeNotifierProvider(create: (_) => SaloonOrderDetailsProvider()),          
+        ChangeNotifierProvider(create: (_) => SaloonOrderDetailsProvider()),
       ],
       child: ScreenUtilInit(
           designSize:

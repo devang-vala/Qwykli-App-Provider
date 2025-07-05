@@ -10,6 +10,7 @@ import 'package:shortly_provider/route/app_pages.dart';
 import 'package:shortly_provider/route/custom_navigator.dart';
 import 'package:shortly_provider/features/Home/screens/accept_order_screen.dart';
 import 'package:shortly_provider/features/Home/screens/open_order_screen.dart';
+import 'package:shortly_provider/features/Home/screens/notification_test_screen.dart';
 import 'package:badges/badges.dart' as badges;
 
 class HomeScreen extends StatelessWidget {
@@ -71,7 +72,8 @@ class HomeScreenBody extends StatelessWidget {
                     onTap: () => _showLocationSelector(context, provider),
                     child: Row(
                       children: [
-                        const Icon(Icons.location_on_outlined, color: Colors.white),
+                        const Icon(Icons.location_on_outlined,
+                            color: Colors.white),
                         const SizedBox(width: 6),
                         Text(
                           provider.selectedLocation,
@@ -90,6 +92,20 @@ class HomeScreenBody extends StatelessWidget {
                 Row(
                   children: [
                     _buildSwitchToggle(context, provider),
+                    CustomSpacers.width10,
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                const NotificationTestScreen(),
+                          ),
+                        );
+                      },
+                      child: const Icon(Icons.bug_report,
+                          size: 24, color: Colors.white),
+                    ),
                     CustomSpacers.width10,
                     GestureDetector(
                       onTap: () {
@@ -114,8 +130,8 @@ class HomeScreenBody extends StatelessWidget {
                 indicatorColor: Colors.white,
                 labelColor: Colors.white,
                 unselectedLabelColor: Colors.grey.shade300,
-                labelStyle: const TextStyle(
-                    fontSize: 14, fontWeight: FontWeight.w600),
+                labelStyle:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                 indicatorSize: TabBarIndicatorSize.label,
                 tabs: [
                   Tab(text: AppLocalizations.of(context)!.openorder),
@@ -131,8 +147,7 @@ class HomeScreenBody extends StatelessWidget {
                         badgeColor: Colors.red,
                         padding: EdgeInsets.all(5),
                       ),
-                      child:
-                          Text(AppLocalizations.of(context)!.acceptorder),
+                      child: Text(AppLocalizations.of(context)!.acceptorder),
                     ),
                   ),
                 ],
@@ -150,7 +165,8 @@ class HomeScreenBody extends StatelessWidget {
         Text(
           provider.isActive ? 'Active' : 'Inactive',
           style: TextStyle(
-            color: provider.isActive ? Colors.greenAccent : Colors.grey.shade300,
+            color:
+                provider.isActive ? Colors.greenAccent : Colors.grey.shade300,
             fontWeight: FontWeight.w600,
             fontSize: 13,
           ),
@@ -170,7 +186,8 @@ class HomeScreenBody extends StatelessWidget {
     );
   }
 
-  void _showLocationSelector(BuildContext context, HomeScreenProvider provider) {
+  void _showLocationSelector(
+      BuildContext context, HomeScreenProvider provider) {
     final controller = TextEditingController();
     showModalBottomSheet(
       context: context,

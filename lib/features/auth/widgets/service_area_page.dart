@@ -9,6 +9,13 @@ import 'package:http/http.dart' as http;
 import 'package:shortly_provider/core/network/network_config.dart';
 
 const String kGoogleApiKey = "AIzaSyAlcxv4LvUepfvQWilRGizpaGAcEb4uG9g";
+final RegExp areaNameRegExp = RegExp(r"^[a-zA-Z\s.'-]{2,50}$");
+String? validateAreaNameField(String? v) {
+  if (v == null || v.trim().isEmpty) return 'Area name required';
+  if (!areaNameRegExp.hasMatch(v))
+    return 'Area name must be 2-50 valid characters.';
+  return null;
+}
 
 class ServiceAreaPage extends StatefulWidget {
   @override
@@ -120,6 +127,7 @@ class _ServiceAreaPageState extends State<ServiceAreaPage> {
                       TextFormField(
                         initialValue: areaName,
                         decoration: InputDecoration(labelText: 'Area Name'),
+                        validator: validateAreaNameField,
                         onChanged: (val) {
                           areaName = val;
                         },
@@ -389,12 +397,7 @@ class _ServiceAreaPageState extends State<ServiceAreaPage> {
                                 border: OutlineInputBorder(),
                                 isDense: true,
                               ),
-                              validator: (val) {
-                                if (val == null || val.trim().isEmpty) {
-                                  return 'Area name required';
-                                }
-                                return null;
-                              },
+                              validator: validateAreaNameField,
                               onChanged: (val) {
                                 final newAreas = List<ServiceArea>.from(
                                     provider.serviceAreas);

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
+import 'package:shortly_provider/core/services/firebase_messaging_service.dart';
 
 class ServiceArea {
   final String name;
@@ -32,6 +33,9 @@ class ProviderRegistrationProvider extends ChangeNotifier {
   File? photo;
   File? aadharCard;
   File? panCard;
+
+  final FirebaseMessagingService _firebaseMessagingService =
+      FirebaseMessagingService();
 
   // Step navigation
   void nextStep() {
@@ -160,5 +164,9 @@ class ProviderRegistrationProvider extends ChangeNotifier {
     aadharCard = null;
     panCard = null;
     notifyListeners();
+  }
+
+  Future<void> registerFCMToken() async {
+    await _firebaseMessagingService.registerTokenWithServer();
   }
 }

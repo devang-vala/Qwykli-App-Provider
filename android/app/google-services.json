@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "954951924577",
+    "project_id": "qwykliii",
+    "storage_bucket": "qwykliii.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:954951924577:android:d0e1bbb95be4c78f612320",
+        "android_client_info": {
+          "package_name": "com.abhion.shortly_customer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCK0bMW7OzjL1CN8JqFE4TcQFs3P0VPCok"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:954951924577:android:7b2f2d1b4fda5303612320",
+        "android_client_info": {
+          "package_name": "com.abhion.shortly_provider"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCK0bMW7OzjL1CN8JqFE4TcQFs3P0VPCok"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
