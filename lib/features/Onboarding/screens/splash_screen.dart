@@ -5,6 +5,7 @@ import 'package:shortly_provider/route/app_pages.dart';
 import 'dart:async';
 import 'package:shortly_provider/route/custom_navigator.dart';
 import 'package:shortly_provider/core/services/auth_service.dart';
+import 'package:shortly_provider/core/services/firebase_messaging_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -17,7 +18,29 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
+    _initializeNotifications();
     _navigateAfterSplash();
+  }
+
+  Future<void> _initializeNotifications() async {
+    try {
+      debugPrint('🔔 Starting notification initialization...');
+      final messagingService = FirebaseMessagingService();
+
+      debugPrint('🔔 Initializing Firebase Messaging Service...');
+      await messagingService.initialize();
+
+      debugPrint('🔔 Registering token with server...');
+      final success = await messagingService.registerTokenWithServer();
+
+      if (success) {
+        debugPrint('✅ Notification initialization completed successfully');
+      } else {
+        debugPrint('❌ Failed to register token with server');
+      }
+    } catch (e) {
+      debugPrint('❌ Error during notification initialization: $e');
+    }
   }
 
   void _navigateAfterSplash() async {

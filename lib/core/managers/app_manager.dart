@@ -8,14 +8,18 @@ import 'package:shortly_provider/main.dart';
 import 'shared_preference_manager.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
-
+import 'package:shortly_provider/core/services/local_notification_service.dart';
 
 class AppManager {
   static Future<void> initialize() async {
     LocationHandler location = new LocationHandler();
+
     // Initialize Firebase and other services
     await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     await SharedPreferencesManager.init();
     await location.getCurrentLocation();
-  } 
+
+    // Initialize local notification service
+    await LocalNotificationService().initialize();
+  }
 }

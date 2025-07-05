@@ -10,6 +10,13 @@ import 'package:google_maps_webservice/places.dart';
 import 'subcategory_page.dart';
 
 const String kGoogleApiKey = "AIzaSyAlcxv4LvUepfvQWilRGizpaGAcEb4uG9g";
+final RegExp nameRegExp = RegExp(r"^[a-zA-Z\s.'-]{2,25}$");
+String? validateNameField(String? v) {
+  if (v == null || v.trim().isEmpty) return 'Name is required';
+  if (!nameRegExp.hasMatch(v))
+    return 'Name must be 2-25 letters and valid characters only.';
+  return null;
+}
 
 class PersonalInfoPage extends StatefulWidget {
   @override
@@ -146,8 +153,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                 initialValue: provider.name,
                 onChanged: provider.setName,
                 decoration: InputDecoration(labelText: 'Full Name'),
-                validator: (v) =>
-                    v == null || v.isEmpty ? 'Name is required' : null,
+                validator: validateNameField,
               ),
               SizedBox(height: 12),
               TextFormField(
@@ -226,12 +232,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                       labelText: 'Salon Name',
                       hintText: 'Enter your salon name',
                     ),
-                    validator: (v) {
-                      if (provider.hasSalon && (v == null || v.isEmpty)) {
-                        return 'Salon name is required';
-                      }
-                      return null;
-                    },
+                    validator: provider.hasSalon ? validateNameField : null,
                   ),
                   SizedBox(height: 12),
                   GestureDetector(
